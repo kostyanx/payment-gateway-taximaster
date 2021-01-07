@@ -1,0 +1,32 @@
+plugins {
+    id 'org.jetbrains.kotlin.jvm' version '1.4.21'
+}
+
+group = 'ru.catcab'
+version = '1.0.0'
+
+repositories {
+    jcenter()
+}
+
+dependencies {
+    implementation 'com.h2database:h2:1.4.200'
+    implementation 'org.flywaydb:flyway-core:6.4.0'
+    implementation "org.koin:koin-core:$koin_version"
+    testImplementation 'org.jetbrains.kotlin:kotlin-test-junit5'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.6.0'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.6.0'
+    testImplementation "org.koin:koin-test:$koin_version"
+}
+
+test {
+    useJUnitPlatform()
+}
+
+compileKotlin {
+    kotlinOptions.jvmTarget = '13'
+}
+
+compileTestKotlin {
+    kotlinOptions.jvmTarget = '13'
+}

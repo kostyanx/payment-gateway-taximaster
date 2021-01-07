@@ -1,0 +1,10 @@
+taximaster:
+  api:
+    base-url: 'https://host:port/common_api/1.0'
+    secret: 'your secret here'
+
+datasource:
+  internal:
+    url: jdbc:h2://path-to-db
+    username: sa
+    password: ''
