@@ -43,7 +43,7 @@
       <AppenderRef ref="error" level="warn" />
       <AppenderRef ref="info" level="info" />
       <AppenderRef ref="debug" level="debug" />
-      <AppenderRef ref="application" level="info" />
+      <AppenderRef ref="application" level="debug" />
     </Root>
   </Loggers>
 </Configuration>

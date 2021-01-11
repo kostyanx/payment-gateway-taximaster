@@ -1,7 +1,8 @@
-package ru.catcab.taximaster.paymentgateway.dto.api
+package ru.catcab.taximaster.paymentgateway.dto.api.queries
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import ru.catcab.taximaster.paymentgateway.dto.api.entity.CrewInfo
 
 @Serializable
 data class GetCrewsInfoResponse(
@@ -16,7 +17,7 @@ data class GetCrewsInfoResponse(
     @Serializable
     data class Data (
         @SerialName("crews_info")
-        val crewsInfo: List<GetCrewInfoResponse.Data> = emptyList()
+        val crewsInfo: List<CrewInfo> = emptyList()
     )
 
 }

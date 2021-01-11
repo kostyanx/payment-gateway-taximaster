@@ -1,17 +1,32 @@
 package ru.catcab.taximaster.paymentgateway.configuration
 
 import com.sksamuel.hoplite.ConfigLoader
+import org.h2.jdbcx.JdbcConnectionPool
+import org.jetbrains.exposed.sql.Database
 import org.koin.dsl.module
 import ru.catcab.taximaster.paymentgateway.configuration.values.ApplicationConfig
 import ru.catcab.taximaster.paymentgateway.service.client.TaxiMasterApiClient
+import ru.catcab.taximaster.paymentgateway.service.flyway.FlywayMigrationService
+import javax.sql.DataSource
 
 class ApplicationConfiguration {
     companion object {
         val module = module {
             single { ConfigLoader().loadConfigOrThrow<ApplicationConfig>("/application.yaml") }
             single {
-                val config = get<ApplicationConfig>()
-                TaxiMasterApiClient(config.taximaster.api.baseUrl, config.taximaster.api.secret)
+                val config = get<ApplicationConfig>().taximaster.api
+                TaxiMasterApiClient(config.baseUrl, config.secret)
+            }
+            single<DataSource> {
+                val config = get<ApplicationConfig>().datasource.internal
+                JdbcConnectionPool.create(config.url, config.username, config.password)!!
+            }
+            single {
+                val dataSource = get<DataSource>()
+                Database.connect(dataSource, { it.autoCommit = true })
+            }
+            single {
+                FlywayMigrationService(get())
             }
         }
     }

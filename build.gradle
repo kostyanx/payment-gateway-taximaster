@@ -30,6 +30,7 @@ dependencies {
     implementation 'org.flywaydb:flyway-core:7.4.0'
     // dependency injections
     implementation "org.koin:koin-core:$koin_version"
+    implementation "org.koin:koin-logger-slf4j:$koin_version"
     // json kotlinx serialization
     implementation 'org.jetbrains.kotlinx:kotlinx-serialization-json:1.0.1'
     // ktor http client
@@ -39,6 +40,10 @@ dependencies {
     implementation "io.ktor:ktor-client-json-jvm:$ktor_version"
     implementation "io.ktor:ktor-client-serialization:$ktor_version"
     implementation "io.ktor:ktor-client-logging:$ktor_version"
+    // exposed - kotlin database framework
+    implementation "org.jetbrains.exposed:exposed-core:$exposed_version"
+    implementation "org.jetbrains.exposed:exposed-dao:$exposed_version"
+    implementation "org.jetbrains.exposed:exposed-jdbc:$exposed_version"
     // test dependencies
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.0'

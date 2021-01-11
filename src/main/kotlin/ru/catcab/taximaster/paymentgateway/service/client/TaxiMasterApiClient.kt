@@ -9,8 +9,8 @@ import io.ktor.client.features.logging.*
 import io.ktor.client.request.*
 import io.ktor.http.*
 import org.slf4j.LoggerFactory
-import ru.catcab.taximaster.paymentgateway.dto.api.*
 import ru.catcab.taximaster.paymentgateway.dto.api.enums.OperType
+import ru.catcab.taximaster.paymentgateway.dto.api.queries.*
 import ru.catcab.taximaster.paymentgateway.exception.TaxiMasterApiClientException
 import ru.catcab.taximaster.paymentgateway.stub.TrustAllX509TrustManager
 import ru.catcab.taximaster.paymentgateway.util.ktor.feature.TaxiMasterAuth
@@ -81,7 +81,7 @@ class TaxiMasterApiClient(
         }
     }
 
-    private fun <T : CommonResponse<*>> checkResponse(response: T): T {
+    private inline fun <reified T : CommonResponse<*>> checkResponse(response: T): T {
         if (response.code != 0) {
             throw TaxiMasterApiClientException(response.code, response.descr, response)
         }
@@ -109,6 +109,21 @@ class TaxiMasterApiClient(
     suspend fun getCrewInfo(id: Int): GetCrewInfoResponse {
         val response = client.get<GetCrewInfoResponse>("$baseUrl/get_crew_info") {
             parameter("crew_id", id)
+        }
+        return checkResponse(response)
+    }
+
+    suspend fun getDriverInfo(id: Int): GetDriverInfoResponse {
+        val response = client.get<GetDriverInfoResponse>("$baseUrl/get_driver_info") {
+            parameter("driver_id", id)
+        }
+        return checkResponse(response)
+    }
+
+    suspend fun getDriversInfo(lockedDrivers: Boolean = false, dismissedDrivers: Boolean = false): GetDriversInfoResponse {
+        val response = client.get<GetDriversInfoResponse>("$baseUrl/get_drivers_info") {
+            parameter("locked_drivers", lockedDrivers)
+            parameter("dismissed_drivers", dismissedDrivers)
         }
         return checkResponse(response)
     }

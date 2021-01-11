@@ -1,4 +1,9 @@
 package ru.catcab.taximaster.paymentgateway.service.dao
 
-class PaymentDao {
+import javax.sql.DataSource
+
+class PaymentDao(
+    val dataSource: DataSource
+) {
+
 }

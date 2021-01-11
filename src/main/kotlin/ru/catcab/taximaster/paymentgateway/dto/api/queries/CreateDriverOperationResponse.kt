@@ -1,4 +1,4 @@
-package ru.catcab.taximaster.paymentgateway.dto.api
+package ru.catcab.taximaster.paymentgateway.dto.api.queries
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
