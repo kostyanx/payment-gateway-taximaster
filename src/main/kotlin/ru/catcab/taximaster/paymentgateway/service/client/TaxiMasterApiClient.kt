@@ -15,7 +15,7 @@ import ru.catcab.taximaster.paymentgateway.exception.TaxiMasterApiClientExceptio
 import ru.catcab.taximaster.paymentgateway.stub.TrustAllX509TrustManager
 import ru.catcab.taximaster.paymentgateway.util.ktor.feature.TaxiMasterAuth
 
-class TaxiMasterApiClient(
+open class TaxiMasterApiClient(
     baseUrl: String,
     secret: String
 ) {
@@ -57,7 +57,7 @@ class TaxiMasterApiClient(
         install(Logging) {
             logger = object : Logger {
                 private val delegate = LoggerFactory.getLogger(HttpClient::class.java)!!
-                override fun log(message: String) = delegate.debug(message)
+                override fun log(message: String) = delegate.trace(message)
             }
             level = LogLevel.ALL
         }
