@@ -4,14 +4,19 @@ import org.slf4j.Logger
 
 class DefaultPrinter(
     val log: Logger,
+    override val config: LogConfig,
     val parameterNames: List<String>
 ): Printer {
     override fun logIn(vararg parameters: Any?) {
-        val message = buildString {
-            append("in")
-            parameterNames.forEach { append(" $it={}") }
+        if (config.params) {
+            val message = buildString {
+                append("in")
+                parameterNames.forEach { append(" $it={}") }
+            }
+            log.debug(message, *parameters)
+        } else {
+            log.debug("in")
         }
-        log.debug(message, *parameters)
     }
 
     override fun logOut() {
@@ -19,10 +24,18 @@ class DefaultPrinter(
     }
 
     override fun logOut(value: Any?) {
-        log.debug("out value=$value")
+        if (config.returnVal) {
+            log.debug("out value=$value")
+        } else {
+            log.debug("out")
+        }
     }
 
     override fun logException(ex: Throwable) {
-        log.error("exception", ex)
+        if (config.error) {
+            log.error("exception", ex)
+        } else {
+            log.error("exception")
+        }
     }
 }

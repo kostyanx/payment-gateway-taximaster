@@ -6,7 +6,7 @@ import java.security.MessageDigest
 import java.util.*
 import kotlin.random.Random
 
-class RequestIdGenerator {
+class LogIdGenerator {
     private val hostByte = MessageDigest.getInstance("MD5").digest(InetAddress.getLocalHost().hostName.encodeToByteArray())[15]
 
     fun generate(): String {

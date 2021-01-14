@@ -5,9 +5,11 @@ import org.h2.jdbcx.JdbcConnectionPool
 import org.jetbrains.exposed.sql.Database
 import org.koin.dsl.module
 import ru.catcab.taximaster.paymentgateway.configuration.values.ApplicationConfig
+import ru.catcab.taximaster.paymentgateway.logic.CarDriverSynchronizationOperation
 import ru.catcab.taximaster.paymentgateway.service.client.TaxiMasterApiClient
 import ru.catcab.taximaster.paymentgateway.service.client.TaxiMasterApiClientAdapter
 import ru.catcab.taximaster.paymentgateway.service.flyway.FlywayMigrationService
+import ru.catcab.taximaster.paymentgateway.util.context.LogIdGenerator
 import javax.sql.DataSource
 
 class ApplicationConfiguration {
@@ -33,6 +35,12 @@ class ApplicationConfiguration {
             }
 
             single { FlywayMigrationService(get()) }
+
+            single { LogIdGenerator() }
+
+            single {
+                CarDriverSynchronizationOperation(get(), get(), get())
+            }
         }
     }
 }
