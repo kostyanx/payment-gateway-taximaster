@@ -6,6 +6,7 @@ import org.jetbrains.exposed.sql.Database
 import org.koin.dsl.module
 import ru.catcab.taximaster.paymentgateway.configuration.values.ApplicationConfig
 import ru.catcab.taximaster.paymentgateway.logic.CarDriverSynchronizationOperation
+import ru.catcab.taximaster.paymentgateway.logic.DriverSynchronizationOperation
 import ru.catcab.taximaster.paymentgateway.service.client.TaxiMasterApiClient
 import ru.catcab.taximaster.paymentgateway.service.client.TaxiMasterApiClientAdapter
 import ru.catcab.taximaster.paymentgateway.service.flyway.FlywayMigrationService
@@ -38,9 +39,9 @@ class ApplicationConfiguration {
 
             single { LogIdGenerator() }
 
-            single {
-                CarDriverSynchronizationOperation(get(), get(), get())
-            }
+            single { CarDriverSynchronizationOperation(get(), get(), get()) }
+
+            single { DriverSynchronizationOperation(get(), get(), get()) }
         }
     }
 }

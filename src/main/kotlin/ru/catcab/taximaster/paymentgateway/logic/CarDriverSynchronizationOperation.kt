@@ -4,7 +4,6 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.slf4j.MDCContext
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.transactions.transaction
-import org.slf4j.LoggerFactory
 import ru.catcab.taximaster.paymentgateway.database.entity.CarDriverInfo
 import ru.catcab.taximaster.paymentgateway.dto.api.entity.CrewInfo
 import ru.catcab.taximaster.paymentgateway.service.client.TaxiMasterApiClientAdapter
@@ -24,7 +23,6 @@ class CarDriverSynchronizationOperation(
     private val methodLogger = MethodLogger()
 
     companion object {
-        private val LOG = LoggerFactory.getLogger(CarDriverSynchronizationOperation::class.java)!!
         private val MC18 = MathContext(18)
     }
 
