@@ -186,6 +186,50 @@ class MethodLogger {
         }
     }
 
+    suspend fun <A, B, C, R> logSuspendMethod(method: suspend (A, B, C) -> R, a: A, b: B, c: C, config: (LogConfig.Builder.() -> Unit)? = null): (() -> R)? {
+        val printer = getPrinter(method, config)
+        val context = if (printer.config.mdc != null)
+            executed.asContextElement() + MDCContext(MDC.getCopyOfContextMap().plus(printer.config.mdc!!))
+        else executed.asContextElement()
+        return withContext(context) {
+            if (executed.get()) return@withContext null
+            try {
+                executed.set(true)
+                printer.logIn(a, b, c)
+                val result = method(a, b, c)
+                if (result != Unit) printer.logOut(result) else printer.logOut()
+                return@withContext { result }
+            } catch (ex: Throwable) {
+                printer.logException(ex)
+                return@withContext { throw ex }
+            } finally {
+                executed.set(false)
+            }
+        }
+    }
+
+    suspend fun <A, B, C, D, R> logSuspendMethod(method: suspend (A, B, C, D) -> R, a: A, b: B, c: C, d: D, config: (LogConfig.Builder.() -> Unit)? = null): (() -> R)? {
+        val printer = getPrinter(method, config)
+        val context = if (printer.config.mdc != null)
+            executed.asContextElement() + MDCContext(MDC.getCopyOfContextMap().plus(printer.config.mdc!!))
+        else executed.asContextElement()
+        return withContext(context) {
+            if (executed.get()) return@withContext null
+            try {
+                executed.set(true)
+                printer.logIn(a, b, c, d)
+                val result = method(a, b, c, d)
+                if (result != Unit) printer.logOut(result) else printer.logOut()
+                return@withContext { result }
+            } catch (ex: Throwable) {
+                printer.logException(ex)
+                return@withContext { throw ex }
+            } finally {
+                executed.set(false)
+            }
+        }
+    }
+
     suspend fun <A, B, C, D, E, F, R> logSuspendMethod(method: suspend (A, B, C, D, E, F) -> R, a: A, b: B, c: C, d: D, e: E, f: F, config: (LogConfig.Builder.() -> Unit)? = null): (() -> R)? {
         val printer = getPrinter(method, config)
         val context = if (printer.config.mdc != null)

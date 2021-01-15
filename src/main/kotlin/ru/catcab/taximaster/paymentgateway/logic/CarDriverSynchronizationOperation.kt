@@ -1,11 +1,8 @@
 package ru.catcab.taximaster.paymentgateway.logic
 
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.slf4j.MDCContext
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.transactions.transaction
 import ru.catcab.taximaster.paymentgateway.database.entity.CarDriverInfo
-import ru.catcab.taximaster.paymentgateway.dto.api.entity.CrewInfo
 import ru.catcab.taximaster.paymentgateway.service.client.TaxiMasterApiClientAdapter
 import ru.catcab.taximaster.paymentgateway.util.context.LogIdGenerator
 import ru.catcab.taximaster.paymentgateway.util.context.MDCKey.OPERATION_ID
@@ -26,23 +23,16 @@ class CarDriverSynchronizationOperation(
         private val MC18 = MathContext(18)
     }
 
-    fun activate() {
-        methodLogger.logMethod(::activate) {
+    suspend fun activate() {
+        methodLogger.logSuspendMethod(::activate) {
             returnVal = false
             mdc = mapOf(OPERATION_ID.value to logIdGenerator.generate(), OPERATION_NAME.value to CAR_DRIVER_SYNC.value)
         }?.let { return it() }
 
-        val response = runBlocking(MDCContext()) {
-            val driversInfo = taxiMasterApiClientAdapter.getDriversInfo()
-            val crewsInfos = taxiMasterApiClientAdapter.getCrewsInfo() as MutableList<CrewInfo>
-            crewsInfos to driversInfo
-        }
-
-        val (crewsInfos, driversInfo) = response
+        val driversInfo = taxiMasterApiClientAdapter.getDriversInfo()
+        val crewsInfos = taxiMasterApiClientAdapter.getCrewsInfo().sortedBy { it.crewId }
 
         val driversInfoMap = driversInfo.associateBy { it.driverId }
-
-        crewsInfos.sortBy { it.crewId }
 
         val pairs = crewsInfos
             .filter { driversInfoMap.containsKey(it.driverId) }

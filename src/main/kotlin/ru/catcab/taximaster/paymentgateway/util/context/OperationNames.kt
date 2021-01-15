@@ -6,5 +6,7 @@ enum class OperationNames(
     SBERBANK_PAYMENT("sberbank_payment"),
     CAR_DRIVER_SYNC("car_driver_sync"),
     DRIVER_SYNC("driver_sync"),
-    PROCESS_PAYMENTS("process_payments");
+    PAYMENTS_POLLING("payments_polling"),
+    PAYMENT_IN("payment_in"),
+    PAYMENT_OUT("payment_out");
 }
