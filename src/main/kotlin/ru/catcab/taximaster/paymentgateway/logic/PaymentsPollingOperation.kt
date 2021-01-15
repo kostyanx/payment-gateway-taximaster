@@ -7,6 +7,7 @@ import org.jetbrains.exposed.sql.transactions.experimental.suspendedTransactionA
 import org.slf4j.LoggerFactory
 import ru.catcab.taximaster.paymentgateway.database.entity.Payments
 import ru.catcab.taximaster.paymentgateway.database.enum.Status.NEW
+import ru.catcab.taximaster.paymentgateway.util.common.Strategy
 import ru.catcab.taximaster.paymentgateway.util.context.LogIdGenerator
 import ru.catcab.taximaster.paymentgateway.util.context.MDCKey.OPERATION_ID
 import ru.catcab.taximaster.paymentgateway.util.context.MDCKey.OPERATION_NAME
@@ -16,7 +17,8 @@ import ru.catcab.taximaster.paymentgateway.util.logging.MethodLogger
 class PaymentsPollingOperation(
     private val database: Database,
     private val logIdGenerator: LogIdGenerator,
-    private val paymentOutOperation: PaymentOutOperation
+    private val paymentOutOperation: PaymentOutOperation,
+    private val retryStrategy: Strategy
 ) {
 
     companion object {
