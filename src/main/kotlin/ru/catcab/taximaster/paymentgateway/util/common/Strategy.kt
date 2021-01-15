@@ -1,6 +1,7 @@
 package ru.catcab.taximaster.paymentgateway.util.common
 
 import kotlinx.serialization.Serializable
+import java.time.LocalDateTime
 
 @Serializable
 class Strategy(private val intervals: List<Interval>) {
@@ -14,5 +15,10 @@ class Strategy(private val intervals: List<Interval>) {
             avail -= interval.quantity
         }
         return null
+    }
+
+    fun retryRequired(countOfErrors: Int, errorTimestamp: LocalDateTime): Boolean {
+        val interval = resolve(countOfErrors) ?: return false
+        return errorTimestamp.plusSeconds(interval.interval.toLong()) <= LocalDateTime.now()
     }
 }

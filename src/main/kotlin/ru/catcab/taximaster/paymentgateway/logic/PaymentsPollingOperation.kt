@@ -7,6 +7,7 @@ import org.jetbrains.exposed.sql.transactions.experimental.suspendedTransactionA
 import org.slf4j.LoggerFactory
 import ru.catcab.taximaster.paymentgateway.database.entity.Payments
 import ru.catcab.taximaster.paymentgateway.database.enum.Status.NEW
+import ru.catcab.taximaster.paymentgateway.database.enum.Status.RETRY
 import ru.catcab.taximaster.paymentgateway.util.common.Strategy
 import ru.catcab.taximaster.paymentgateway.util.context.LogIdGenerator
 import ru.catcab.taximaster.paymentgateway.util.context.MDCKey.OPERATION_ID
@@ -40,6 +41,18 @@ class PaymentsPollingOperation(
         }.await()
 
         paymentIds.forEach {
+            paymentOutOperation.activate(it)
+        }
+
+        val retryPaymentIds = suspendedTransactionAsync(Dispatchers.IO, db = database) {
+            Payments.slice(Payments.id, Payments.counter, Payments.updated)
+                .select { Payments.status eq RETRY }
+                .filter { retryStrategy.retryRequired(it[Payments.counter], it[Payments.updated]) }
+                .map { it[Payments.id].value }
+
+        }.await()
+
+        retryPaymentIds.forEach {
             paymentOutOperation.activate(it)
         }
 

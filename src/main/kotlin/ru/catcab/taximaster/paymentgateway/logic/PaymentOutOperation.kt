@@ -1,5 +1,6 @@
 package ru.catcab.taximaster.paymentgateway.logic
 
+import io.ktor.utils.io.errors.*
 import kotlinx.coroutines.Dispatchers
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.transactions.experimental.suspendedTransactionAsync
@@ -23,6 +24,9 @@ class PaymentOutOperation(
 
     companion object {
         val LOG = LoggerFactory.getLogger(PaymentOutOperation::class.java)!!
+        fun Throwable.isRetryable(): Boolean {
+            return this is IOException || this is EOFException
+        }
     }
 
     private val methodLogger = MethodLogger()
@@ -44,7 +48,7 @@ class PaymentOutOperation(
                 payment.updated = LocalDateTime.now()
             } catch (e: Throwable) {
                 payment.counter = payment.counter + 1
-                payment.status = RETRY
+                payment.status = if (e.isRetryable()) RETRY else ERROR
                 payment.errorMessage = e.toString()
                 payment.updated = LocalDateTime.now()
             }
