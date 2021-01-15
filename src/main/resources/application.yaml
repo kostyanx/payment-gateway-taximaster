@@ -8,3 +8,6 @@ datasource:
     url: jdbc:h2:./payment-gateway-taximaster
     username: sa
     password: ''
+
+retry:
+  strategy: '{"intervals": [{"interval": 300, "quantity": 2}, {"interval": 600, "quantity": 2}, {"interval": 1200, "quantity": 2} ]}'
