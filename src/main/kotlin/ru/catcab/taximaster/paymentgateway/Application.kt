@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory
 import ru.catcab.taximaster.paymentgateway.configuration.ApplicationConfiguration
 import ru.catcab.taximaster.paymentgateway.logic.CarDriverSynchronizationOperation
 import ru.catcab.taximaster.paymentgateway.logic.DriverSynchronizationOperation
+import ru.catcab.taximaster.paymentgateway.logic.ProcessPaymentsOperation
 import ru.catcab.taximaster.paymentgateway.service.flyway.FlywayMigrationService
 
 
@@ -17,6 +18,7 @@ class Application : KoinComponent {
     private val flywayMigrationService by inject<FlywayMigrationService>()
     private val carDriverSynchronizationOperation by inject<CarDriverSynchronizationOperation>()
     private val driverSynchronizationOperation by inject<DriverSynchronizationOperation>()
+    private val processPaymentsOperation by inject<ProcessPaymentsOperation>()
 
     fun start(args: Array<String>) {
         LOG.info("args: ${args.toList()}")
@@ -25,6 +27,7 @@ class Application : KoinComponent {
 
         carDriverSynchronizationOperation.activate()
         driverSynchronizationOperation.activate()
+        processPaymentsOperation.activate()
     }
 
     companion object {

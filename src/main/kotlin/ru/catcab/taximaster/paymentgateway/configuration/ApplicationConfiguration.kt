@@ -7,6 +7,7 @@ import org.koin.dsl.module
 import ru.catcab.taximaster.paymentgateway.configuration.values.ApplicationConfig
 import ru.catcab.taximaster.paymentgateway.logic.CarDriverSynchronizationOperation
 import ru.catcab.taximaster.paymentgateway.logic.DriverSynchronizationOperation
+import ru.catcab.taximaster.paymentgateway.logic.ProcessPaymentsOperation
 import ru.catcab.taximaster.paymentgateway.service.client.TaxiMasterApiClient
 import ru.catcab.taximaster.paymentgateway.service.client.TaxiMasterApiClientAdapter
 import ru.catcab.taximaster.paymentgateway.service.flyway.FlywayMigrationService
@@ -42,6 +43,8 @@ class ApplicationConfiguration {
             single { CarDriverSynchronizationOperation(get(), get(), get()) }
 
             single { DriverSynchronizationOperation(get(), get(), get()) }
+
+            single { ProcessPaymentsOperation(get(), get(), get()) }
         }
     }
 }
