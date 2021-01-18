@@ -17,8 +17,7 @@ class LogIdGenerator {
         val randomPart = Random.nextBytes(4)
         randomPart[0] = hostByte
         val result = ByteBuffer.allocate(12).putLong(extId).put(randomPart)
-        return Base64.getEncoder().encodeToString(result.array()).replace('+', '-').replace('/', '_')
-
+        return Base64.getEncoder().encodeToString(result.array()).replace('+', '$').replace('/', '_')
     }
 }
 

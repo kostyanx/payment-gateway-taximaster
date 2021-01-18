@@ -33,7 +33,6 @@ class PaymentOutOperation(
 
     suspend fun activate(paymentId: Int, requestId: String) {
         methodLogger.logSuspendMethod(::activate, paymentId, requestId) {
-            returnVal = false
             mdc = mapOf(OPERATION_ID.value to logIdGenerator.generate(), OPERATION_NAME.value to PAYMENT_OUT.value, REQUEST_ID.value to requestId)
         }?.let { return it() }
 
