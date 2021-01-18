@@ -10,10 +10,10 @@ import org.koin.core.context.startKoin
 import org.koin.logger.slf4jLogger
 import org.slf4j.LoggerFactory
 import ru.catcab.taximaster.paymentgateway.configuration.ApplicationConfiguration
-import ru.catcab.taximaster.paymentgateway.database.enum.SourceType.SBERBANK_CASH
-import ru.catcab.taximaster.paymentgateway.logic.*
-import ru.catcab.taximaster.paymentgateway.util.context.LogIdGenerator
-import java.time.LocalDateTime.now
+import ru.catcab.taximaster.paymentgateway.logic.CarDriverSynchronizationOperation
+import ru.catcab.taximaster.paymentgateway.logic.DriverSynchronizationOperation
+import ru.catcab.taximaster.paymentgateway.logic.FlywayMigrationOperation
+import ru.catcab.taximaster.paymentgateway.logic.PaymentsPollingOperation
 import kotlin.time.ExperimentalTime
 import kotlin.time.minutes
 
@@ -25,17 +25,11 @@ class Application : KoinComponent {
     private val carDriverSynchronizationOperation by inject<CarDriverSynchronizationOperation>()
     private val driverSynchronizationOperation by inject<DriverSynchronizationOperation>()
     private val processPaymentsOperation by inject<PaymentsPollingOperation>()
-    private val paymentInOperation by inject<PaymentInOperation>()
-    private val logIdGenerator by inject<LogIdGenerator>()
 
     fun start(args: Array<String>) {
         LOG.info("args: ${args.toList()}")
 
         flywayMigrationOperation.activate()
-
-        runBlocking {
-            paymentInOperation.activate(SBERBANK_CASH, "1", "10.00".toBigDecimal(), "pay_id_${logIdGenerator.generate()}", now(), logIdGenerator.generate())
-        }
 
         runBlocking {
             while (true) {
