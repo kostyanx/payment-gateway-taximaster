@@ -41,6 +41,8 @@ class ApplicationConfiguration {
 
             single { FlywayMigrationService(get()) }
 
+            single { FlywayMigrationOperation(get(), get()) }
+
             single { LogIdGenerator() }
 
             single { CarDriverSynchronizationOperation(get(), get(), get()) }

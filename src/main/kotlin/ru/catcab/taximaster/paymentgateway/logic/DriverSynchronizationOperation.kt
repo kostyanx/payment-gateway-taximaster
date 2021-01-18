@@ -1,8 +1,11 @@
 package ru.catcab.taximaster.paymentgateway.logic
 
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.sync.Semaphore
+import kotlinx.coroutines.sync.withPermit
+import kotlinx.coroutines.withContext
 import org.jetbrains.exposed.sql.Database
-import org.jetbrains.exposed.sql.transactions.experimental.suspendedTransactionAsync
+import org.jetbrains.exposed.sql.transactions.transaction
 import ru.catcab.taximaster.paymentgateway.database.entity.Driver
 import ru.catcab.taximaster.paymentgateway.service.client.TaxiMasterApiClientAdapter
 import ru.catcab.taximaster.paymentgateway.util.context.LogIdGenerator
@@ -19,6 +22,7 @@ class DriverSynchronizationOperation(
     private val logIdGenerator: LogIdGenerator
 ) {
     private val methodLogger = MethodLogger()
+    private val semaphore = Semaphore(1)
 
     companion object {
         private val MC18 = MathContext(18)
@@ -26,35 +30,36 @@ class DriverSynchronizationOperation(
 
     suspend fun activate() {
         methodLogger.logSuspendMethod(::activate) {
-            returnVal = false
             mdc = mapOf(OPERATION_ID.value to logIdGenerator.generate(), OPERATION_NAME.value to DRIVER_SYNC.value)
         }?.let { return it() }
 
-        val driversTmMap = taxiMasterApiClientAdapter.getDriversInfo().associateBy { it.driverId }
+        semaphore.withPermit {
+            val driversTmMap = taxiMasterApiClientAdapter.getDriversInfo().associateBy { it.driverId }
+            withContext(Dispatchers.IO) {
+                transaction(database) {
+                    val driversDbMap = Driver.all().associateBy { it.id.value }
 
-        suspendedTransactionAsync(Dispatchers.IO, db = database) {
+                    val newElements = driversTmMap.keys.toSet().minus(driversDbMap.keys)
+                    val forDelete = driversDbMap.keys.toSet().minus(driversTmMap.keys)
 
-            val driversDbMap = Driver.all().associateBy { it.id.value }
+                    val checkForUpdate = driversDbMap.keys.toMutableSet().apply { retainAll(driversTmMap.keys) }
 
-            val newElements = driversTmMap.keys.toSet().minus(driversDbMap.keys)
-            val forDelete = driversDbMap.keys.toSet().minus(driversTmMap.keys)
+                    forDelete.map { driversDbMap[it]!! }.forEach { it.delete() }
 
-            val checkForUpdate = driversDbMap.keys.toMutableSet().apply { retainAll(driversTmMap.keys) }
+                    newElements.map { driversTmMap[it]!! }.forEach { driver ->
+                        Driver.new(driver.driverId) {
+                            fio = driver.name
+                            balance = driver.balance.toBigDecimal(MC18).setScale(2, RoundingMode.HALF_UP)
+                        }
+                    }
 
-            forDelete.map { driversDbMap[it]!! }.forEach { it.delete() }
-
-            newElements.map { driversTmMap[it]!! }.forEach { driver ->
-                Driver.new(driver.driverId) {
-                    fio = driver.name
-                    balance = driver.balance.toBigDecimal(MC18).setScale(2, RoundingMode.HALF_UP)
+                    checkForUpdate.map { driversDbMap[it]!! to driversTmMap[it]!! }.forEach { (db, tm) ->
+                        if (db.fio != tm.name) db.fio = tm.name
+                        val driverBalance = tm.balance.toBigDecimal(MC18).setScale(2, RoundingMode.HALF_UP)
+                        if (db.balance.compareTo(driverBalance) != 0) db.balance = driverBalance
+                    }
                 }
             }
-
-            checkForUpdate.map { driversDbMap[it]!! to driversTmMap[it]!! }.forEach { (db, tm) ->
-                if (db.fio != tm.name) db.fio = tm.name
-                val driverBalance = tm.balance.toBigDecimal(MC18).setScale(2, RoundingMode.HALF_UP)
-                if (db.balance.compareTo(driverBalance) != 0) db.balance = driverBalance
-            }
-        }.await()
+        }
     }
 }

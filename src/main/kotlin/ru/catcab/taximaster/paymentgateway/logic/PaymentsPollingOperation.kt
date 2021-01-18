@@ -1,10 +1,14 @@
 package ru.catcab.taximaster.paymentgateway.logic
 
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.sync.Semaphore
+import kotlinx.coroutines.sync.withPermit
+import kotlinx.coroutines.withContext
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.select
-import org.jetbrains.exposed.sql.transactions.experimental.suspendedTransactionAsync
+import org.jetbrains.exposed.sql.transactions.transaction
 import org.slf4j.LoggerFactory
+import ru.catcab.taximaster.paymentgateway.database.entity.Payment
 import ru.catcab.taximaster.paymentgateway.database.entity.Payments
 import ru.catcab.taximaster.paymentgateway.database.enum.Status.NEW
 import ru.catcab.taximaster.paymentgateway.database.enum.Status.RETRY
@@ -27,33 +31,37 @@ class PaymentsPollingOperation(
     }
 
     private val methodLogger = MethodLogger()
+    private val semaphore =  Semaphore(1)
 
     suspend fun activate() {
         methodLogger.logSuspendMethod(::activate) {
-            returnVal = false
             mdc = mapOf(OPERATION_ID.value to logIdGenerator.generate(), OPERATION_NAME.value to PAYMENTS_POLLING.value)
         }?.let { return it() }
 
-        val paymentIds = suspendedTransactionAsync(Dispatchers.IO, db = database) {
-            Payments.slice(Payments.id)
-                .select { Payments.status eq NEW }.limit(10)
-                .map { it[Payments.id].value }
-        }.await()
+        semaphore.withPermit {
+            val payments = withContext(Dispatchers.IO) {
+                transaction(database) {
+                    Payments.slice(Payments.id, Payments.requestId)
+                        .select { Payments.status eq NEW }.limit(10)
+                        .map { Payment.wrapRow(it) }
+                }
+            }
+            payments.forEach {
+                paymentOutOperation.activate(it.id.value, it.requestId)
+            }
 
-        paymentIds.forEach {
-            paymentOutOperation.activate(it)
-        }
+            val retryPaymentIds = withContext(Dispatchers.IO) {
+                transaction(database) {
+                    Payments.slice(Payments.id, Payments.counter, Payments.updated)
+                        .select { Payments.status eq RETRY }
+                        .filter { retryStrategy.retryRequired(it[Payments.counter], it[Payments.updated]) }
+                        .map { Payment.wrapRow(it) }
+                }
+            }
 
-        val retryPaymentIds = suspendedTransactionAsync(Dispatchers.IO, db = database) {
-            Payments.slice(Payments.id, Payments.counter, Payments.updated)
-                .select { Payments.status eq RETRY }
-                .filter { retryStrategy.retryRequired(it[Payments.counter], it[Payments.updated]) }
-                .map { it[Payments.id].value }
-
-        }.await()
-
-        retryPaymentIds.forEach {
-            paymentOutOperation.activate(it)
+            retryPaymentIds.forEach {
+                paymentOutOperation.activate(it.id.value, it.requestId)
+            }
         }
 
     }

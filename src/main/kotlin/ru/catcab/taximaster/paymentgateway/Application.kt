@@ -1,6 +1,7 @@
 package ru.catcab.taximaster.paymentgateway
 
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.koin.core.component.KoinApiExtension
 import org.koin.core.component.KoinComponent
@@ -11,16 +12,16 @@ import org.slf4j.LoggerFactory
 import ru.catcab.taximaster.paymentgateway.configuration.ApplicationConfiguration
 import ru.catcab.taximaster.paymentgateway.logic.CarDriverSynchronizationOperation
 import ru.catcab.taximaster.paymentgateway.logic.DriverSynchronizationOperation
+import ru.catcab.taximaster.paymentgateway.logic.FlywayMigrationOperation
 import ru.catcab.taximaster.paymentgateway.logic.PaymentsPollingOperation
-import ru.catcab.taximaster.paymentgateway.service.flyway.FlywayMigrationService
 import kotlin.time.ExperimentalTime
-import kotlin.time.seconds
+import kotlin.time.minutes
 
 
 @ExperimentalTime
 @KoinApiExtension
 class Application : KoinComponent {
-    private val flywayMigrationService by inject<FlywayMigrationService>()
+    private val flywayMigrationOperation by inject<FlywayMigrationOperation>()
     private val carDriverSynchronizationOperation by inject<CarDriverSynchronizationOperation>()
     private val driverSynchronizationOperation by inject<DriverSynchronizationOperation>()
     private val processPaymentsOperation by inject<PaymentsPollingOperation>()
@@ -28,14 +29,16 @@ class Application : KoinComponent {
     fun start(args: Array<String>) {
         LOG.info("args: ${args.toList()}")
 
-        flywayMigrationService.applyMigrations()
+        flywayMigrationOperation.activate()
 
         runBlocking {
             while (true) {
-                carDriverSynchronizationOperation.activate()
-                driverSynchronizationOperation.activate()
-                processPaymentsOperation.activate()
-                delay(5.seconds)
+                launch {
+                    carDriverSynchronizationOperation.activate()
+                    driverSynchronizationOperation.activate()
+                    processPaymentsOperation.activate()
+                }
+                delay(1.minutes)
             }
         }
 
