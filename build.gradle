@@ -31,8 +31,10 @@ dependencies {
     // dependency injections
     implementation "org.koin:koin-core:$koin_version"
     implementation "org.koin:koin-logger-slf4j:$koin_version"
+    // dependency injections - ktor integration
+    implementation "org.koin:koin-ktor:$koin_version"
     // json kotlinx serialization
-    implementation 'org.jetbrains.kotlinx:kotlinx-serialization-json:1.0.1'
+    implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:$kotlin_serialization"
     // ktor http client
     implementation "io.ktor:ktor-client-core:$ktor_version"
     implementation "io.ktor:ktor-client-core-jvm:$ktor_version"
@@ -40,6 +42,10 @@ dependencies {
     implementation "io.ktor:ktor-client-json-jvm:$ktor_version"
     implementation "io.ktor:ktor-client-serialization:$ktor_version"
     implementation "io.ktor:ktor-client-logging:$ktor_version"
+    // ktor http server
+    implementation "io.ktor:ktor-server-core:$ktor_version"
+    implementation "io.ktor:ktor-server-cio:$ktor_version"
+    implementation "io.ktor:ktor-serialization:$ktor_version"
     // exposed - kotlin database framework
     implementation "org.jetbrains.exposed:exposed-core:$exposed_version"
     implementation "org.jetbrains.exposed:exposed-dao:$exposed_version"
@@ -52,6 +58,7 @@ dependencies {
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
     testImplementation 'org.jetbrains.kotlin:kotlin-test-junit5'
     testImplementation "org.koin:koin-test:$koin_version"
+    testImplementation "io.ktor:ktor-server-tests:$ktor_version"
 }
 
 test {

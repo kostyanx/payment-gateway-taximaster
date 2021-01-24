@@ -38,29 +38,24 @@ class PaymentsPollingOperation(
             mdc = mapOf(OPERATION_ID.value to logIdGenerator.generate(), OPERATION_NAME.value to PAYMENTS_POLLING.value)
         }?.let { return it() }
 
-        semaphore.withPermit {
-            val payments = withContext(Dispatchers.IO) {
+        withContext(Dispatchers.IO) {
+            semaphore.withPermit {
                 transaction(database) {
                     Payments.slice(Payments.id, Payments.requestId)
                         .select { Payments.status eq NEW }.limit(10)
                         .map { Payment.wrapRow(it) }
+                }.forEach {
+                    paymentOutOperation.activate(it.id.value, it.requestId)
                 }
-            }
-            payments.forEach {
-                paymentOutOperation.activate(it.id.value, it.requestId)
-            }
 
-            val retryPaymentIds = withContext(Dispatchers.IO) {
                 transaction(database) {
                     Payments.slice(Payments.id, Payments.counter, Payments.updated)
                         .select { Payments.status eq RETRY }
                         .filter { retryStrategy.retryRequired(it[Payments.counter], it[Payments.updated]) }
                         .map { Payment.wrapRow(it) }
+                }.forEach {
+                    paymentOutOperation.activate(it.id.value, it.requestId)
                 }
-            }
-
-            retryPaymentIds.forEach {
-                paymentOutOperation.activate(it.id.value, it.requestId)
             }
         }
 

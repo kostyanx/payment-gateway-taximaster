@@ -51,7 +51,7 @@ class ApplicationConfiguration {
 
             single { PaymentsPollingOperation(get(), get(), get(), get()) }
 
-            single { PaymentInOperation(get(), get()) }
+            single { PaymentInOperation(get(), get(), get()) }
 
             single { PaymentOutOperation(get(), get(), get()) }
         }

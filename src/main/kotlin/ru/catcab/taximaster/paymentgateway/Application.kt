@@ -1,5 +1,6 @@
 package ru.catcab.taximaster.paymentgateway
 
+import io.ktor.server.cio.*
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -14,6 +15,7 @@ import ru.catcab.taximaster.paymentgateway.logic.CarDriverSynchronizationOperati
 import ru.catcab.taximaster.paymentgateway.logic.DriverSynchronizationOperation
 import ru.catcab.taximaster.paymentgateway.logic.FlywayMigrationOperation
 import ru.catcab.taximaster.paymentgateway.logic.PaymentsPollingOperation
+import kotlin.concurrent.thread
 import kotlin.time.ExperimentalTime
 import kotlin.time.minutes
 
@@ -30,6 +32,8 @@ class Application : KoinComponent {
         LOG.info("args: ${args.toList()}")
 
         flywayMigrationOperation.activate()
+
+        thread { EngineMain.main(args) }
 
         runBlocking {
             while (true) {
