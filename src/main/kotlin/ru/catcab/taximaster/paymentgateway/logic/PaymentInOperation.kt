@@ -21,13 +21,13 @@ class PaymentInOperation(
 ) {
     private val methodLogger = MethodLogger()
 
-    suspend fun activate(sourceType: SourceType, receiver: String, amount: BigDecimal, payId: String, payTimestamp: LocalDateTime, requestId: String) {
+    suspend fun activate(sourceType: SourceType, receiver: String, amount: BigDecimal, payId: String, payTimestamp: LocalDateTime, requestId: String): Payment {
         methodLogger.logSuspendMethod(::activate, sourceType, receiver, amount, payId, payTimestamp, requestId) {
             mdc = mapOf(OPERATION_ID.value to logIdGenerator.generate(), OPERATION_NAME.value to PAYMENT_IN.value, REQUEST_ID.value to requestId)
         }?.let { return it() }
 
-        withContext(Dispatchers.IO) {
-            transaction(database) {
+        return withContext(Dispatchers.IO) {
+            val payment = transaction(database) {
                 Payment.new {
                     this.sourceType = sourceType
                     this.receiver = receiver
@@ -35,9 +35,12 @@ class PaymentInOperation(
                     this.payId = payId
                     this.payTimestamp = payTimestamp
                     this.requestId = requestId
+                    this.inserted = LocalDateTime.now()
+                    this.updated = LocalDateTime.now()
                 }
             }
             launch { paymentsPollingOperation.activate() }
+            return@withContext payment
         }
     }
 }

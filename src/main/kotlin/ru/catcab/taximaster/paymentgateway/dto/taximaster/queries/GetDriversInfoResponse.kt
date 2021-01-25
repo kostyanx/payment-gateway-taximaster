@@ -1,8 +1,8 @@
-package ru.catcab.taximaster.paymentgateway.dto.api.queries
+package ru.catcab.taximaster.paymentgateway.dto.taximaster.queries
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import ru.catcab.taximaster.paymentgateway.dto.api.entity.DriverInfo
+import ru.catcab.taximaster.paymentgateway.dto.taximaster.entity.DriverInfo
 
 @Serializable
 data class GetDriversInfoResponse (

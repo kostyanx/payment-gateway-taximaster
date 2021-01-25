@@ -41,20 +41,20 @@ class PaymentsPollingOperation(
         withContext(Dispatchers.IO) {
             semaphore.withPermit {
                 transaction(database) {
-                    Payments.slice(Payments.id, Payments.requestId)
+                    Payments.slice(Payments.id, Payments.receiver, Payments.requestId)
                         .select { Payments.status eq NEW }.limit(10)
                         .map { Payment.wrapRow(it) }
                 }.forEach {
-                    paymentOutOperation.activate(it.id.value, it.requestId)
+                    paymentOutOperation.activate(it.id.value, it.receiver, it.requestId)
                 }
 
                 transaction(database) {
-                    Payments.slice(Payments.id, Payments.counter, Payments.updated)
+                    Payments.slice(Payments.id, Payments.counter, Payments.updated, Payments.receiver, Payments.requestId)
                         .select { Payments.status eq RETRY }
                         .filter { retryStrategy.retryRequired(it[Payments.counter], it[Payments.updated]) }
                         .map { Payment.wrapRow(it) }
                 }.forEach {
-                    paymentOutOperation.activate(it.id.value, it.requestId)
+                    paymentOutOperation.activate(it.id.value, it.receiver, it.requestId)
                 }
             }
         }

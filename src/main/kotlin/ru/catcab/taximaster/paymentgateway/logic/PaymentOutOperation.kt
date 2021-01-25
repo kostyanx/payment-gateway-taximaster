@@ -8,7 +8,7 @@ import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransacti
 import org.slf4j.LoggerFactory
 import ru.catcab.taximaster.paymentgateway.database.entity.Payment
 import ru.catcab.taximaster.paymentgateway.database.enum.Status.*
-import ru.catcab.taximaster.paymentgateway.dto.api.enums.OperType.RECEIPT
+import ru.catcab.taximaster.paymentgateway.dto.taximaster.enums.OperType.RECEIPT
 import ru.catcab.taximaster.paymentgateway.service.client.TaxiMasterApiClientAdapter
 import ru.catcab.taximaster.paymentgateway.util.context.LogIdGenerator
 import ru.catcab.taximaster.paymentgateway.util.context.MDCKey.*
@@ -31,9 +31,9 @@ class PaymentOutOperation(
 
     private val methodLogger = MethodLogger()
 
-    suspend fun activate(paymentId: Int, requestId: String) {
-        methodLogger.logSuspendMethod(::activate, paymentId, requestId) {
-            mdc = mapOf(OPERATION_ID.value to logIdGenerator.generate(), OPERATION_NAME.value to PAYMENT_OUT.value, REQUEST_ID.value to requestId)
+    suspend fun activate(paymentId: Int, receiver: String, requestId: String) {
+        methodLogger.logSuspendMethod(::activate, paymentId, receiver, requestId) {
+            mdc = mapOf(OPERATION_ID.value to logIdGenerator.generate(), OPERATION_NAME.value to PAYMENT_OUT.value, REQUEST_ID.value to requestId, RECEIVER.value to receiver)
         }?.let { return it() }
 
         withContext(Dispatchers.IO) {

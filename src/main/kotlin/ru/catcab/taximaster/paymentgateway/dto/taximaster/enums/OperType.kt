@@ -1,4 +1,4 @@
-package ru.catcab.taximaster.paymentgateway.dto.api.enums
+package ru.catcab.taximaster.paymentgateway.dto.taximaster.enums
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable

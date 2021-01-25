@@ -9,8 +9,8 @@ import io.ktor.client.features.logging.*
 import io.ktor.client.request.*
 import io.ktor.http.*
 import org.slf4j.LoggerFactory
-import ru.catcab.taximaster.paymentgateway.dto.api.enums.OperType
-import ru.catcab.taximaster.paymentgateway.dto.api.queries.*
+import ru.catcab.taximaster.paymentgateway.dto.taximaster.enums.OperType
+import ru.catcab.taximaster.paymentgateway.dto.taximaster.queries.*
 import ru.catcab.taximaster.paymentgateway.exception.TaxiMasterApiClientException
 import ru.catcab.taximaster.paymentgateway.stub.TrustAllX509TrustManager
 import ru.catcab.taximaster.paymentgateway.util.ktor.feature.TaxiMasterAuth

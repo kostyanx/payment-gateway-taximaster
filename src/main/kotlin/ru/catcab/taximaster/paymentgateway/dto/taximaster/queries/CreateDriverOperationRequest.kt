@@ -1,12 +1,8 @@
-@file:UseSerializers(BigDecimalSerializer::class)
-
-package ru.catcab.taximaster.paymentgateway.dto.api.queries
+package ru.catcab.taximaster.paymentgateway.dto.taximaster.queries
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.UseSerializers
-import ru.catcab.taximaster.paymentgateway.dto.api.enums.OperType
-import ru.catcab.taximaster.paymentgateway.dto.api.serializer.BigDecimalSerializer
+import ru.catcab.taximaster.paymentgateway.dto.taximaster.enums.OperType
 
 @Serializable
 data class CreateDriverOperationRequest(

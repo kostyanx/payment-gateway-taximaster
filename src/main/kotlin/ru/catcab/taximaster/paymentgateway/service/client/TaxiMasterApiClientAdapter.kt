@@ -1,9 +1,9 @@
 package ru.catcab.taximaster.paymentgateway.service.client
 
-import ru.catcab.taximaster.paymentgateway.dto.api.entity.CrewInfo
-import ru.catcab.taximaster.paymentgateway.dto.api.entity.DriverInfo
-import ru.catcab.taximaster.paymentgateway.dto.api.enums.OperType
-import ru.catcab.taximaster.paymentgateway.dto.api.queries.CreateDriverOperationResponse
+import ru.catcab.taximaster.paymentgateway.dto.taximaster.entity.CrewInfo
+import ru.catcab.taximaster.paymentgateway.dto.taximaster.entity.DriverInfo
+import ru.catcab.taximaster.paymentgateway.dto.taximaster.enums.OperType
+import ru.catcab.taximaster.paymentgateway.dto.taximaster.queries.CreateDriverOperationResponse
 import ru.catcab.taximaster.paymentgateway.util.logging.MethodLogger
 
 class TaxiMasterApiClientAdapter(

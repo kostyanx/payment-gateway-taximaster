@@ -7,7 +7,8 @@ enum class MDCKey(
 ) {
     REQUEST_ID("req_id"),
     OPERATION_ID("oper_id"),
-    OPERATION_NAME("oper_name");
+    OPERATION_NAME("oper_name"),
+    RECEIVER("receiver");
 
     companion object {
         @JvmStatic

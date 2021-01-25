@@ -54,6 +54,10 @@ class ApplicationConfiguration {
             single { PaymentInOperation(get(), get(), get()) }
 
             single { PaymentOutOperation(get(), get(), get()) }
+
+            single { SberbankCheckOperation(get()) }
+
+            single { SberbankPaymentOperation(get(), get()) }
         }
     }
 }
