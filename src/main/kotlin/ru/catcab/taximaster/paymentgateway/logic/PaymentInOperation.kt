@@ -1,6 +1,7 @@
 package ru.catcab.taximaster.paymentgateway.logic
 
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.jetbrains.exposed.sql.Database
@@ -26,8 +27,8 @@ class PaymentInOperation(
             mdc = mapOf(OPERATION_ID.value to logIdGenerator.generate(), OPERATION_NAME.value to PAYMENT_IN.value, REQUEST_ID.value to requestId)
         }?.let { return it() }
 
-        return withContext(Dispatchers.IO) {
-            val payment = transaction(database) {
+        val result = withContext(Dispatchers.IO) {
+            transaction(database) {
                 Payment.new {
                     this.sourceType = sourceType
                     this.receiver = receiver
@@ -39,8 +40,12 @@ class PaymentInOperation(
                     this.updated = LocalDateTime.now()
                 }
             }
-            launch { paymentsPollingOperation.activate() }
-            return@withContext payment
         }
+
+        GlobalScope.launch {
+            paymentsPollingOperation.activate()
+        }
+
+        return result
     }
 }
