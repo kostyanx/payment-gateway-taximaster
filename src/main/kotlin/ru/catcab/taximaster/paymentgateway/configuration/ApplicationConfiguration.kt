@@ -1,6 +1,7 @@
 package ru.catcab.taximaster.paymentgateway.configuration
 
 import com.sksamuel.hoplite.ConfigLoader
+import com.sksamuel.hoplite.PropertySource
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import org.h2.jdbcx.JdbcConnectionPool
@@ -13,12 +14,19 @@ import ru.catcab.taximaster.paymentgateway.service.client.TaxiMasterApiClientAda
 import ru.catcab.taximaster.paymentgateway.service.flyway.FlywayMigrationService
 import ru.catcab.taximaster.paymentgateway.util.common.Strategy
 import ru.catcab.taximaster.paymentgateway.util.context.LogIdGenerator
+import java.io.File
 import javax.sql.DataSource
 
 class ApplicationConfiguration {
     companion object {
         val module = module {
-            single { ConfigLoader().loadConfigOrThrow<ApplicationConfig>("/application.yaml") }
+            single {
+                ConfigLoader.Builder()
+                    .addSource(PropertySource.file(File("application.yaml"), true))
+                    .addSource(PropertySource.resource("/application.yaml"))
+                    .build()
+                    .loadConfigOrThrow<ApplicationConfig>()
+            }
 
             single {
                 val config = get<ApplicationConfig>().taximaster.api

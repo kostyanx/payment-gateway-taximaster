@@ -11,3 +11,13 @@ datasource:
 
 retry:
   strategy: '{"intervals": [{"interval": 300, "quantity": 2}, {"interval": 600, "quantity": 2}, {"interval": 1200, "quantity": 2} ]}'
+
+allowed_subnets:
+  - '194.186.207.0/24'
+  - '194.54.14.0/24'
+  - '192.168.0.0/16'
+  - '127.0.0.0/8'
+
+allowed_hosts:
+  - 'localhost'
+  - 'ip6-localhost'

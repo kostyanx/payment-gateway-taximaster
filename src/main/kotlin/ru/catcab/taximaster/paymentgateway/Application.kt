@@ -1,6 +1,6 @@
 package ru.catcab.taximaster.paymentgateway
 
-import io.ktor.server.cio.*
+import io.ktor.server.netty.*
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking

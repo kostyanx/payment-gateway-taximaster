@@ -4,3 +4,4 @@ build
 !.idea/runConfigurations
 *.iml
 log
+*.jks
