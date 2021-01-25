@@ -11,4 +11,8 @@ class CarDriverInfo(id: EntityID<Int>): IntEntity(id) {
     var code by CarDriverInfoTable.code
     var fio by CarDriverInfoTable.fio
     var balance by CarDriverInfoTable.balance
+
+    override fun toString(): String {
+        return "CarDriverInfo(carId=$carId, driverId=$driverId, code='$code', fio='$fio', balance=$balance)"
+    }
 }

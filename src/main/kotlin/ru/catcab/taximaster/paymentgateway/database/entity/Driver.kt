@@ -8,4 +8,8 @@ class Driver(id: EntityID<Int>): IntEntity(id) {
     companion object : IntEntityClass<Driver>(Drivers)
     var fio by Drivers.fio
     var balance by Drivers.balance
+
+    override fun toString(): String {
+        return "Driver(fio='$fio', balance=$balance)"
+    }
 }

@@ -18,4 +18,9 @@ class Payment(id: EntityID<Int>): IntEntity(id) {
     var errorMessage by Payments.errorMessage
     var inserted by Payments.inserted
     var updated by Payments.updated
+
+    override fun toString(): String {
+        return "Payment(sourceType=$sourceType, payId='$payId', receiver='$receiver', amount=$amount, payTimestamp=$payTimestamp, requestId='$requestId', operId=$operId, status=$status, counter=$counter, errorMessage=$errorMessage, inserted=$inserted, updated=$updated)"
+    }
+
 }
