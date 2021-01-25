@@ -12,15 +12,16 @@ import io.ktor.response.*
 import io.ktor.routing.*
 import io.ktor.util.pipeline.*
 import org.koin.ktor.ext.inject
+import ru.catcab.taximaster.paymentgateway.configuration.values.ApplicationConfig
 import ru.catcab.taximaster.paymentgateway.dto.sberbank.ResponseError
 import ru.catcab.taximaster.paymentgateway.exception.SberbankException
 import ru.catcab.taximaster.paymentgateway.logic.SberbankCheckOperation
 import ru.catcab.taximaster.paymentgateway.logic.SberbankPaymentOperation
+import ru.catcab.taximaster.paymentgateway.util.common.Helpers.containsAddress
 import ru.catcab.taximaster.paymentgateway.util.common.Helpers.removeLeadingZeros
 import ru.catcab.taximaster.paymentgateway.util.context.LogIdGenerator
 import ru.catcab.taximaster.paymentgateway.util.context.MDCKey.RECEIVER
 import ru.catcab.taximaster.paymentgateway.util.context.MDCKey.REQUEST_ID
-
 
 
 fun Application.module() {
@@ -28,6 +29,7 @@ fun Application.module() {
     val sberbankCheckOperation by inject<SberbankCheckOperation>()
     val sberbankPaymentOperation by inject<SberbankPaymentOperation>()
     val logIdGenerator by inject<LogIdGenerator>()
+    val config by inject<ApplicationConfig>()
 
     install(CallLogging) {
         mdc(REQUEST_ID.value) { logIdGenerator.generate() }
@@ -58,20 +60,25 @@ fun Application.module() {
         }
         get("/jbilling/pay/sberbank2") {
             val params = call.parameters
-            processSberbankPayment(params, sberbankCheckOperation, sberbankPaymentOperation)
+            processSberbankPayment(params, config, sberbankCheckOperation, sberbankPaymentOperation)
         }
         post("/jbilling/pay/sberbank2") {
             val params = call.receiveParameters()
-            processSberbankPayment(params, sberbankCheckOperation, sberbankPaymentOperation)
+            processSberbankPayment(params, config, sberbankCheckOperation, sberbankPaymentOperation)
         }
     }
 }
 
 private suspend fun PipelineContext<Unit, ApplicationCall>.processSberbankPayment(
     params: Parameters,
+    config: ApplicationConfig,
     sberbankCheckOperation: SberbankCheckOperation,
     sberbankPaymentOperation: SberbankPaymentOperation
 ) {
+    val remoteHost = call.request.origin.remoteHost
+    val allowed = config.allowedHosts.contains(remoteHost) || config.allowedSubnets.any { it.containsAddress(remoteHost) }
+    if (!allowed) throw SberbankException(2, "Запрос выполнен с неразрешенного адреса")
+
     val action = requireNotNull(params["ACTION"], { "ACTION parameter not defined" })
     val account = requireNotNull(params["ACCOUNT"], { "ACCOUNT parameter not defined" })
     when (action.toLowerCase()) {
