@@ -62,7 +62,15 @@ fun Application.module() {
             val params = call.parameters
             processSberbankPayment(params, config, sberbankCheckOperation, sberbankPaymentOperation)
         }
+        get("/jbilling/pay/sberbank2/") {
+            val params = call.parameters
+            processSberbankPayment(params, config, sberbankCheckOperation, sberbankPaymentOperation)
+        }
         post("/jbilling/pay/sberbank2") {
+            val params = call.receiveParameters()
+            processSberbankPayment(params, config, sberbankCheckOperation, sberbankPaymentOperation)
+        }
+        post("/jbilling/pay/sberbank2/") {
             val params = call.receiveParameters()
             processSberbankPayment(params, config, sberbankCheckOperation, sberbankPaymentOperation)
         }
