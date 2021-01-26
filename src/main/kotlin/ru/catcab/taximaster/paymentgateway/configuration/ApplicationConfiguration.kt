@@ -65,7 +65,7 @@ class ApplicationConfiguration {
 
             single { SberbankCheckOperation(get()) }
 
-            single { SberbankPaymentOperation(get(), get()) }
+            single { SberbankPaymentOperation(get(), get(), get()) }
         }
     }
 }

@@ -8,19 +8,36 @@ datasource:
     url: jdbc:h2:./payment-gateway-taximaster
     username: sa
     password: ''
+    start_tcp_server: true
 
 retry:
   strategy: '{"intervals": [{"interval": 300, "quantity": 2}, {"interval": 600, "quantity": 2}, {"interval": 1200, "quantity": 2} ]}'
 
-allowed_subnets:
-  - '194.186.207.0/24'
-  - '194.54.14.0/24'
-  - '192.168.0.0/16'
-  - '127.0.0.0/8'
+sberbank:
+  security:
+    allowed_subnets:
+      - '194.186.207.0/24'
+      - '194.54.14.0/24'
+      - '192.168.0.0/16'
+      - '127.0.0.0/8'
+    allowed_hosts:
+      - 'localhost'
+      - 'ip6-localhost'
+  allowed_serv_values:
+    - '2'
+  pay_ch_cash:
+    - 'KASSA'
+    - 'US_N'
+    - 'AGENT'
+  pay_ch_cashless:
+    - 'KASSA_V'
+    - 'F_190'
+    - 'US_V'
+    - 'SBOL'
+    - 'MOB'
+    - 'APAY'
 
-allowed_hosts:
-  - 'localhost'
-  - 'ip6-localhost'
-
-allowed_serv_values:
-  - '2'
+synchronization:
+  interval_sec: 60
+  drivers: true
+  crews: false

@@ -57,7 +57,7 @@ fun Application.module() {
     routing {
 
         get("/") {
-            call.respond(ResponseError(-1, "not implemented"));
+            call.respond(ResponseError(-1, "not implemented"))
         }
         get("/jbilling/pay/sberbank2") {
             val params = call.parameters
@@ -85,14 +85,14 @@ private suspend fun PipelineContext<Unit, ApplicationCall>.processSberbankPaymen
     sberbankPaymentOperation: SberbankPaymentOperation
 ) {
     val remoteHost = call.request.origin.remoteHost
-    val allowed = config.allowedHosts.contains(remoteHost) || config.allowedSubnets.any { it.containsAddress(remoteHost) }
+    val allowed = config.sberbank.security.allowedHosts.contains(remoteHost) || config.sberbank.security.allowedSubnets.any { it.containsAddress(remoteHost) }
     if (!allowed) throw SberbankException(2, "Запрос выполнен с неразрешенного адреса")
 
     val action = requireNotNull(params["ACTION"], { "ACTION parameter not defined" })
     val account = requireNotNull(params["ACCOUNT"], { "ACCOUNT parameter not defined" })
     when (action.toLowerCase()) {
         "check" -> {
-            if (params["SERV"].let { it != null && !config.allowedServValues.contains(it) }) throw SberbankException(3, ACCOUNT_NOT_FOUND)
+            if (params["SERV"].let { it != null && !config.sberbank.allowedServValues.contains(it) }) throw SberbankException(3, ACCOUNT_NOT_FOUND)
             val checkResponse = sberbankCheckOperation.activate(account)
             call.respond(checkResponse)
         }

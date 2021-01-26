@@ -5,6 +5,7 @@ import kotlinx.coroutines.withContext
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.transactions.transaction
+import ru.catcab.taximaster.paymentgateway.configuration.values.ApplicationConfig
 import ru.catcab.taximaster.paymentgateway.database.entity.Payment
 import ru.catcab.taximaster.paymentgateway.database.entity.Payments
 import ru.catcab.taximaster.paymentgateway.database.enum.SourceType.SBERBANK_CASH
@@ -19,6 +20,7 @@ import java.time.format.DateTimeFormatter.ISO_LOCAL_DATE_TIME
 import java.time.temporal.ChronoUnit.SECONDS
 
 class SberbankPaymentOperation(
+    private val config: ApplicationConfig,
     private val database: Database,
     private val paymentInOperation: PaymentInOperation
 ) {
@@ -40,9 +42,9 @@ class SberbankPaymentOperation(
             return PaymentResponse(8, "Платеж уже был проведен", regTime, now)
         }
 
-        val sourceType = when(payCh) {
-            "KASSA", "US_N", "AGENT" -> SBERBANK_CASH
-            "KASSA_V", "F_190", "US_V", "SBOL", "MOB", "APAY" -> SBERBANK_CASHLESS
+        val sourceType = when {
+            config.sberbank.payChCash.contains(payCh) -> SBERBANK_CASH
+            config.sberbank.payChCashless.contains(payCh) -> SBERBANK_CASHLESS
             else -> SBERBANK_CASHLESS
         }
         val newPayment = paymentInOperation.activate(sourceType, receiver, amountVal, payId, payDateVal, MDCKey.getValue(REQUEST_ID))
