@@ -22,7 +22,7 @@ class SberbankPaymentOperation(
     private val database: Database,
     private val paymentInOperation: PaymentInOperation
 ) {
-    private val dateTimeFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy_HH.mm.ss")
+    private val dateTimeFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy_HH:mm:ss")
 
     suspend fun activate(account: String, amount: String, payId: String, payDate: String, payCh: String?): PaymentResponse {
         val receiver = account.removeLeadingZeros()
