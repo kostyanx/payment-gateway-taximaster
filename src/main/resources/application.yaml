@@ -1,6 +1,6 @@
 taximaster:
   api:
-    base_url: 'https://incity.dyndns.org:31185/common_api/1.0'
+    base_url: 'https://host:port/common_api/1.0'
     secret: 'secret'
 
 datasource:
