@@ -14,6 +14,7 @@ import ru.catcab.taximaster.paymentgateway.util.common.Helpers.removeLeadingZero
 import ru.catcab.taximaster.paymentgateway.util.context.MDCKey
 import ru.catcab.taximaster.paymentgateway.util.context.MDCKey.REQUEST_ID
 import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeFormatter.ISO_LOCAL_DATE_TIME
 import java.time.temporal.ChronoUnit.SECONDS
 
@@ -21,11 +22,12 @@ class SberbankPaymentOperation(
     private val database: Database,
     private val paymentInOperation: PaymentInOperation
 ) {
+    private val dateTimeFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy_HH.mm.ss")
 
     suspend fun activate(account: String, amount: String, payId: String, payDate: String, payCh: String?): PaymentResponse {
         val receiver = account.removeLeadingZeros()
         val amountVal = amount.toBigDecimal()
-        val payDateVal = LocalDateTime.parse(payDate, ISO_LOCAL_DATE_TIME)
+        val payDateVal = LocalDateTime.parse(payDate, dateTimeFormatter)
         val payment = withContext(Dispatchers.IO) {
             transaction(database) {
                 Payment.find { (Payments.payId eq payId) and (Payments.sourceType inList listOf(SBERBANK_CASH, SBERBANK_CASHLESS))  }.firstOrNull()

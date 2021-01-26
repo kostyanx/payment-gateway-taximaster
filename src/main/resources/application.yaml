@@ -21,3 +21,6 @@ allowed_subnets:
 allowed_hosts:
   - 'localhost'
   - 'ip6-localhost'
+
+allowed_serv_values:
+  - '2'

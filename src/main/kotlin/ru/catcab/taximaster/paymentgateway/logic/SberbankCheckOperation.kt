@@ -12,9 +12,9 @@ class SberbankCheckOperation(
     private val database: Database
 ) {
     companion object {
-        @JvmStatic private val NUMBER_REGEX = "[0-9]+".toRegex()
-        @JvmStatic private val ACCOUNT_MUST_BE_A_NUMBER = "ИД Водителя должно быть числом"
-        @JvmStatic private val ACCOUNT_NOT_FOUND = "Водитель с таким ИД не найден"
+        @JvmStatic val NUMBER_REGEX = "[0-9]+".toRegex()
+        @JvmStatic val ACCOUNT_MUST_BE_A_NUMBER = "ИД Водителя должно быть числом"
+        @JvmStatic val ACCOUNT_NOT_FOUND = "Водитель с таким ИД не найден"
     }
 
     suspend fun activate(account: String): CheckResponseOk {

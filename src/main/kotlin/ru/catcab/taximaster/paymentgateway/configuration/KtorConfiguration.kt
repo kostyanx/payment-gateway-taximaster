@@ -16,6 +16,7 @@ import ru.catcab.taximaster.paymentgateway.configuration.values.ApplicationConfi
 import ru.catcab.taximaster.paymentgateway.dto.sberbank.ResponseError
 import ru.catcab.taximaster.paymentgateway.exception.SberbankException
 import ru.catcab.taximaster.paymentgateway.logic.SberbankCheckOperation
+import ru.catcab.taximaster.paymentgateway.logic.SberbankCheckOperation.Companion.ACCOUNT_NOT_FOUND
 import ru.catcab.taximaster.paymentgateway.logic.SberbankPaymentOperation
 import ru.catcab.taximaster.paymentgateway.util.common.Helpers.containsAddress
 import ru.catcab.taximaster.paymentgateway.util.common.Helpers.removeLeadingZeros
@@ -56,7 +57,7 @@ fun Application.module() {
     routing {
 
         get("/") {
-            throw UnsupportedOperationException("not implemented")
+            call.respond(ResponseError(-1, "not implemented"));
         }
         get("/jbilling/pay/sberbank2") {
             val params = call.parameters
@@ -91,6 +92,7 @@ private suspend fun PipelineContext<Unit, ApplicationCall>.processSberbankPaymen
     val account = requireNotNull(params["ACCOUNT"], { "ACCOUNT parameter not defined" })
     when (action.toLowerCase()) {
         "check" -> {
+            if (params["SERV"].let { it != null && !config.allowedServValues.contains(it) }) throw SberbankException(3, ACCOUNT_NOT_FOUND)
             val checkResponse = sberbankCheckOperation.activate(account)
             call.respond(checkResponse)
         }
