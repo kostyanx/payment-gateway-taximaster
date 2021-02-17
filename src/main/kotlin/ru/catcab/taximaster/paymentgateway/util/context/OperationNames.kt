@@ -8,5 +8,7 @@ enum class OperationNames(
     PAYMENTS_POLLING("payments_polling"),
     PAYMENT_IN("payment_in"),
     PAYMENT_OUT("payment_out"),
+    SBERBANK_CHECK("sberbank_check"),
+    SBERBANK_PAYMENT("sberbank_payment"),
     FLYWAY_MIGRATION("flyway_migration");
 }

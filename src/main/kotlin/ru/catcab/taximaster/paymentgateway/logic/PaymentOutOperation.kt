@@ -6,6 +6,7 @@ import kotlinx.coroutines.withContext
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import org.slf4j.LoggerFactory
+import ru.catcab.taximaster.paymentgateway.configuration.values.ApplicationConfig
 import ru.catcab.taximaster.paymentgateway.database.entity.Payment
 import ru.catcab.taximaster.paymentgateway.database.enum.Status.*
 import ru.catcab.taximaster.paymentgateway.dto.taximaster.enums.OperType.RECEIPT
@@ -17,6 +18,7 @@ import ru.catcab.taximaster.paymentgateway.util.logging.MethodLogger
 import java.time.LocalDateTime
 
 class PaymentOutOperation(
+    private val config: ApplicationConfig,
     private val database: Database,
     private val logIdGenerator: LogIdGenerator,
     private val taxiMasterApiClientAdapter: TaxiMasterApiClientAdapter
@@ -42,7 +44,8 @@ class PaymentOutOperation(
                 payment.apply { LOG.info("payment: id={} sourceType={} payId={} receiver={} amount={}", id, sourceType, payId, receiver, amount, requestId) }
                 try {
                     val driverId = payment.receiver.toInt()
-                    val operId = taxiMasterApiClientAdapter.createDriverOperation(driverId, payment.amount.toDouble(), RECEIPT, "Платеж через ${payment.sourceType}").data.operId
+                    val paymentSource = config.sourceTypeMap[payment.sourceType] ?: payment.sourceType.name
+                    val operId = taxiMasterApiClientAdapter.createDriverOperation(driverId, payment.amount.toDouble(), RECEIPT, "Платеж через $paymentSource").data.operId
                     payment.status = SUCCESS
                     payment.operId = operId
                     payment.updated = LocalDateTime.now()

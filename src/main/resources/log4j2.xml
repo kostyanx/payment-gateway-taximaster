@@ -38,8 +38,8 @@
     </RollingFile>
   </Appenders>
   <Loggers>
-    <Root level="debug">
-      <AppenderRef ref="stdout" level="debug" />
+    <Root level="trace">
+      <AppenderRef ref="stdout" level="trace" />
       <AppenderRef ref="error" level="warn" />
       <AppenderRef ref="info" level="info" />
       <AppenderRef ref="debug" level="debug" />

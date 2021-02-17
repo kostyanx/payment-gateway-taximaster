@@ -61,11 +61,13 @@ class ApplicationConfiguration {
 
             single { PaymentInOperation(get(), get(), get()) }
 
-            single { PaymentOutOperation(get(), get(), get()) }
+            single { PaymentOutOperation(get(), get(), get(), get()) }
 
-            single { SberbankCheckOperation(get()) }
+            single { SberbankCheckOperation(get(), get()) }
 
-            single { SberbankPaymentOperation(get(), get(), get()) }
+            single { SberbankPaymentOperation(get(), get(), get(), get()) }
+
+            single { RequestLogOperation(get()) }
         }
     }
 }

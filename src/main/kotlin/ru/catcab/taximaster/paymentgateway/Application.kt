@@ -1,6 +1,7 @@
 package ru.catcab.taximaster.paymentgateway
 
 import io.ktor.server.netty.*
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -45,9 +46,13 @@ class Application : KoinComponent {
 
         val sync = config.synchronization
 
+        val exceptionHandler = CoroutineExceptionHandler { ct, ex ->
+            LOG.error("uncaught exception on coroutine $ct:", ex)
+        }
+
         runBlocking {
             while (true) {
-                launch {
+                launch(exceptionHandler) {
                     if (sync.crews) carDriverSynchronizationOperation.activate()
                     if (sync.drivers) driverSynchronizationOperation.activate()
                     processPaymentsOperation.activate()
@@ -63,6 +68,12 @@ class Application : KoinComponent {
 
         @JvmStatic
         fun main(args: Array<String>) {
+            val currentUncaughtExceptionHandler = Thread.getDefaultUncaughtExceptionHandler() ?: null
+            Thread.setDefaultUncaughtExceptionHandler { thread, ex ->
+                LOG.error("uncaught exception on thread $thread:", ex)
+                currentUncaughtExceptionHandler?.uncaughtException(thread, ex)
+            }
+
             startKoin {
                 slf4jLogger()
                 modules(ApplicationConfiguration.module)

@@ -5,8 +5,8 @@ taximaster:
 
 datasource:
   internal:
-    url: jdbc:h2:./payment-gateway-taximaster
-    username: sa
+    url: 'jdbc:h2:./payment-gateway-taximaster'
+    username: 'sa'
     password: ''
     start_tcp_server: true
 
@@ -36,8 +36,13 @@ sberbank:
     - 'SBOL'
     - 'MOB'
     - 'APAY'
+  pay_ch_default: 'SBERBANK_CASHLESS'
 
 synchronization:
   interval_sec: 60
   drivers: true
   crews: false
+
+source_type_map:
+  SBERBANK_CASH: 'Сбербанк наличные'
+  SBERBANK_CASHLESS: 'Сбербанк безналичный'
