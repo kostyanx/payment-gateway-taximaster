@@ -16,6 +16,7 @@ import ru.catcab.taximaster.paymentgateway.util.context.MDCKey.*
 import ru.catcab.taximaster.paymentgateway.util.context.OperationNames.PAYMENT_OUT
 import ru.catcab.taximaster.paymentgateway.util.logging.MethodLogger
 import java.time.LocalDateTime
+import java.util.*
 
 class PaymentOutOperation(
     private val config: ApplicationConfig,
@@ -26,6 +27,7 @@ class PaymentOutOperation(
 
     companion object {
         val LOG = LoggerFactory.getLogger(PaymentOutOperation::class.java)!!
+        val ACCEPT_STATUSES = EnumSet.of(NEW, RETRY)!!
         fun Throwable.isRetryable(): Boolean {
             return this is IOException || this is EOFException
         }
@@ -40,7 +42,7 @@ class PaymentOutOperation(
 
         withContext(Dispatchers.IO) {
             newSuspendedTransaction(db = database) {
-                val payment = Payment.findById(paymentId)?.takeIf { it.status == NEW } ?: return@newSuspendedTransaction
+                val payment = Payment.findById(paymentId)?.takeIf { it.status in ACCEPT_STATUSES } ?: return@newSuspendedTransaction
                 payment.apply { LOG.info("payment: id={} sourceType={} payId={} receiver={} amount={}", id, sourceType, payId, receiver, amount, requestId) }
                 try {
                     val driverId = payment.receiver.toInt()

@@ -14,7 +14,11 @@ import org.koin.logger.slf4jLogger
 import org.slf4j.LoggerFactory
 import ru.catcab.taximaster.paymentgateway.configuration.ApplicationConfiguration
 import ru.catcab.taximaster.paymentgateway.configuration.values.ApplicationConfig
-import ru.catcab.taximaster.paymentgateway.logic.*
+import ru.catcab.taximaster.paymentgateway.logic.CarDriverSynchronizationOperation
+import ru.catcab.taximaster.paymentgateway.logic.DriverSynchronizationOperation
+import ru.catcab.taximaster.paymentgateway.logic.FlywayMigrationOperation
+import ru.catcab.taximaster.paymentgateway.logic.PaymentsPollingOperation
+import ru.catcab.taximaster.paymentgateway.logic.RemoveOldDataOperation
 import kotlin.concurrent.thread
 import kotlin.time.ExperimentalTime
 import kotlin.time.seconds
@@ -53,9 +57,9 @@ class Application : KoinComponent {
         runBlocking {
             while (true) {
                 launch(exceptionHandler) {
-                    if (sync.crews) carDriverSynchronizationOperation.activate()
-                    if (sync.drivers) driverSynchronizationOperation.activate()
-                    processPaymentsOperation.activate()
+                    if (sync.crews) kotlin.runCatching { carDriverSynchronizationOperation.activate() }
+                    if (sync.drivers) kotlin.runCatching { driverSynchronizationOperation.activate() }
+                    kotlin.runCatching { processPaymentsOperation.activate() }
                 }
                 delay(sync.intervalSec.seconds)
             }
