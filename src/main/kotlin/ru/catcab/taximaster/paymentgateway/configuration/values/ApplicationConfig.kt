@@ -9,5 +9,5 @@ data class ApplicationConfig (
     val sberbank: Sberbank,
     val synchronization: Synchronization,
     val sourceTypeMap: Map<SourceType, String>,
-    val auditLogTemplates: List<AuditLogTemplate>
+    val logging: Logging
 )

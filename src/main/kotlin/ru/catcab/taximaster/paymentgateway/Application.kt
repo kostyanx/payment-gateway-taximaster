@@ -14,10 +14,7 @@ import org.koin.logger.slf4jLogger
 import org.slf4j.LoggerFactory
 import ru.catcab.taximaster.paymentgateway.configuration.ApplicationConfiguration
 import ru.catcab.taximaster.paymentgateway.configuration.values.ApplicationConfig
-import ru.catcab.taximaster.paymentgateway.logic.CarDriverSynchronizationOperation
-import ru.catcab.taximaster.paymentgateway.logic.DriverSynchronizationOperation
-import ru.catcab.taximaster.paymentgateway.logic.FlywayMigrationOperation
-import ru.catcab.taximaster.paymentgateway.logic.PaymentsPollingOperation
+import ru.catcab.taximaster.paymentgateway.logic.*
 import kotlin.concurrent.thread
 import kotlin.time.ExperimentalTime
 import kotlin.time.seconds
@@ -30,12 +27,15 @@ class Application : KoinComponent {
     private val carDriverSynchronizationOperation by inject<CarDriverSynchronizationOperation>()
     private val driverSynchronizationOperation by inject<DriverSynchronizationOperation>()
     private val processPaymentsOperation by inject<PaymentsPollingOperation>()
+    private val removeOldDataOperation by inject<RemoveOldDataOperation>()
 
     @ExperimentalTime
     fun start(args: Array<String>) {
         LOG.info("args: ${args.toList()}")
 
         flywayMigrationOperation.activate()
+
+        removeOldDataOperation.scheduleRemoveOldData()
 
         if (config.datasource.internal.startTcpServer) {
             val server = Server.createTcpServer("-tcpPort", "9092", "-tcpAllowOthers").start()

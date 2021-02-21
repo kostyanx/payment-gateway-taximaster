@@ -10,5 +10,6 @@ enum class OperationNames(
     PAYMENT_OUT("payment_out"),
     SBERBANK_CHECK("sberbank_check"),
     SBERBANK_PAYMENT("sberbank_payment"),
-    FLYWAY_MIGRATION("flyway_migration");
+    FLYWAY_MIGRATION("flyway_migration"),
+    REMOVE_OLD_DATA("remove_old_data");
 }

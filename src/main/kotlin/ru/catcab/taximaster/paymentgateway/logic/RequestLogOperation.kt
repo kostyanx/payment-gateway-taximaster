@@ -26,7 +26,7 @@ class RequestLogOperation(
     suspend fun activate(method: HttpMethod, path: String, params: Parameters, responseCode: Int, response: Any) {
         withContext(Dispatchers.IO) {
             params["ACTION"]
-                ?.let { action -> config.auditLogTemplates.firstOrNull { it.action == action && path.startsWith(it.path) } }
+                ?.let { action -> config.logging.audit.templates.firstOrNull { it.action == action && path.startsWith(it.path) } }
                 ?.resolve(params::get)
                 ?.also(AUDIT_LOG::info)
 

@@ -15,6 +15,8 @@ import ru.catcab.taximaster.paymentgateway.service.flyway.FlywayMigrationService
 import ru.catcab.taximaster.paymentgateway.util.common.Strategy
 import ru.catcab.taximaster.paymentgateway.util.context.LogIdGenerator
 import java.io.File
+import java.util.concurrent.ScheduledExecutorService
+import java.util.concurrent.ScheduledThreadPoolExecutor
 import javax.sql.DataSource
 
 class ApplicationConfiguration {
@@ -45,6 +47,13 @@ class ApplicationConfiguration {
                 Database.connect(dataSource, { it.autoCommit = true })
             }
 
+            single<ScheduledExecutorService> {
+                ScheduledThreadPoolExecutor(1).apply {
+                    removeOnCancelPolicy = true
+                    Runtime.getRuntime().addShutdownHook(Thread(this::shutdown))
+                }
+            }
+
             single { Json.decodeFromString<Strategy>(get<ApplicationConfig>().retry.strategy) }
 
             single { FlywayMigrationService(get()) }
@@ -68,6 +77,8 @@ class ApplicationConfiguration {
             single { SberbankPaymentOperation(get(), get(), get(), get()) }
 
             single { RequestLogOperation(get(), get()) }
+
+            single { RemoveOldDataOperation(get(), get(), get(), get()) }
         }
     }
 }
