@@ -1,5 +1,5 @@
 plugins {
-    id 'org.jetbrains.kotlin.jvm' version '1.4.21'
+    id 'org.jetbrains.kotlin.jvm' version '1.4.30'
     id 'org.jetbrains.kotlin.plugin.serialization' version '1.4.10'
     id 'java-library-distribution'
     id 'idea'
@@ -57,7 +57,7 @@ dependencies {
     implementation "org.jetbrains.exposed:exposed-jdbc:$exposed_version"
     implementation "org.jetbrains.exposed:exposed-java-time:$exposed_version"
     // kotlin reflect
-    implementation "org.jetbrains.kotlin:kotlin-reflect:1.4.21"
+    implementation "org.jetbrains.kotlin:kotlin-reflect:1.4.30"
     // library for human-readable scheduling task
     implementation 'com.github.shyiko.skedule:skedule:0.4.0:kalvanized'
     // test dependencies
