@@ -67,7 +67,7 @@ class ApplicationConfiguration {
 
             single { SberbankPaymentOperation(get(), get(), get(), get()) }
 
-            single { RequestLogOperation(get()) }
+            single { RequestLogOperation(get(), get()) }
         }
     }
 }

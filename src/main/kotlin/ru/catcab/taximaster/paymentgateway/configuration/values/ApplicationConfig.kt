@@ -8,5 +8,6 @@ data class ApplicationConfig (
     val retry: RetrySpec,
     val sberbank: Sberbank,
     val synchronization: Synchronization,
-    val sourceTypeMap: Map<SourceType, String>
+    val sourceTypeMap: Map<SourceType, String>,
+    val auditLogTemplates: List<AuditLogTemplate>
 )

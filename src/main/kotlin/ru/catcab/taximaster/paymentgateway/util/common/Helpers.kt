@@ -7,9 +7,11 @@ import java.net.Inet4Address
 import java.nio.ByteBuffer
 import java.security.MessageDigest
 import java.time.LocalDateTime
+import java.util.regex.Pattern
 
 object Helpers {
-    val LEADING_ZEROES_REGEXP = "^0+(?!\$)".toRegex()
+    @JvmStatic val LEADING_ZEROES_REGEXP = "^0+(?!\$)".toRegex()
+    @JvmStatic val VAR_PATTERN = Pattern.compile("\\{([A-Za-z_][A-Za-z0-9._]*)}")!!
 
     val nowExpression = object : Expression<LocalDateTime>() {
         override fun toQueryBuilder(queryBuilder: QueryBuilder) = queryBuilder { +"NOW()" }
@@ -36,5 +38,19 @@ object Helpers {
         val subnetAddressInt = ByteBuffer.wrap(subnetAddress.address).int
         val remoteAddressInt = ByteBuffer.wrap(remoteAddress.address).int
         return subnetAddressInt and subnetMaskInt == remoteAddressInt and subnetMaskInt
+    }
+
+    fun resolve(template: String?, recursive: Boolean, resolver: (String) -> String?): String {
+        if (template == null) return ""
+        val matcher = VAR_PATTERN.matcher(template)
+        val sb = StringBuilder()
+        while (matcher.find()) {
+            val match = template.substring(matcher.start(1), matcher.end(1))
+            val value = resolver(match)
+            val resultValue = if (recursive) resolve(value, true, resolver) else value
+            matcher.appendReplacement(sb, resultValue ?: "")
+        }
+        matcher.appendTail(sb)
+        return sb.toString()
     }
 }

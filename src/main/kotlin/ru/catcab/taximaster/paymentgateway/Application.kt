@@ -23,7 +23,6 @@ import kotlin.time.ExperimentalTime
 import kotlin.time.seconds
 
 
-@ExperimentalTime
 @KoinApiExtension
 class Application : KoinComponent {
     private val config by inject<ApplicationConfig>()
@@ -32,6 +31,7 @@ class Application : KoinComponent {
     private val driverSynchronizationOperation by inject<DriverSynchronizationOperation>()
     private val processPaymentsOperation by inject<PaymentsPollingOperation>()
 
+    @ExperimentalTime
     fun start(args: Array<String>) {
         LOG.info("args: ${args.toList()}")
 
@@ -66,6 +66,7 @@ class Application : KoinComponent {
     companion object {
         private val LOG = LoggerFactory.getLogger(Application::class.java)!!
 
+        @ExperimentalTime
         @JvmStatic
         fun main(args: Array<String>) {
             val currentUncaughtExceptionHandler = Thread.getDefaultUncaughtExceptionHandler() ?: null

@@ -46,3 +46,11 @@ synchronization:
 source_type_map:
   SBERBANK_CASH: 'Сбербанк наличные'
   SBERBANK_CASHLESS: 'Сбербанк безналичный'
+
+audit_log_templates:
+  - path: '/jbilling/pay/sberbank2'
+    action: 'check'
+    message: 'Запрос баланса - ИД Водителя: {ACCOUNT}, SERV: {SERV}'
+  - path: '/jbilling/pay/sberbank2'
+    action: 'payment'
+    message: 'Проведение платежа - ИД Водителя: {ACCOUNT}, Сумма: {AMOUNT}, ИД Платежа: {PAY_ID}, Дата: {PAY_DATE}, PAY_CH: {PAY_CH}, SERV: {SERV}'
