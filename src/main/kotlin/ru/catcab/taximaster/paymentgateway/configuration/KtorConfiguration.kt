@@ -136,5 +136,5 @@ private suspend fun PipelineContext<Unit, ApplicationCall>.processSberbankPaymen
         }
     }
     call.respond(response)
-    GlobalScope.launch { requestLogOperation.activate(method, call.request.path(), params, 200, response) }
+    GlobalScope.launch(MDCContext()) { requestLogOperation.activate(method, call.request.path(), params, 200, response) }
 }
