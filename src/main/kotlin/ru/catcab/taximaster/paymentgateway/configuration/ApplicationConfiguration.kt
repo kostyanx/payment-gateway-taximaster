@@ -8,7 +8,16 @@ import org.h2.jdbcx.JdbcConnectionPool
 import org.jetbrains.exposed.sql.Database
 import org.koin.dsl.module
 import ru.catcab.taximaster.paymentgateway.configuration.values.ApplicationConfig
-import ru.catcab.taximaster.paymentgateway.logic.*
+import ru.catcab.taximaster.paymentgateway.logic.CarDriverSynchronizationOperation
+import ru.catcab.taximaster.paymentgateway.logic.DriverSynchronizationOperation
+import ru.catcab.taximaster.paymentgateway.logic.FlywayMigrationOperation
+import ru.catcab.taximaster.paymentgateway.logic.PaymentInOperation
+import ru.catcab.taximaster.paymentgateway.logic.PaymentOutOperation
+import ru.catcab.taximaster.paymentgateway.logic.PaymentsPollingOperation
+import ru.catcab.taximaster.paymentgateway.logic.RemoveOldDataOperation
+import ru.catcab.taximaster.paymentgateway.logic.RequestLogOperation
+import ru.catcab.taximaster.paymentgateway.logic.SberbankCheckOperation
+import ru.catcab.taximaster.paymentgateway.logic.SberbankPaymentOperation
 import ru.catcab.taximaster.paymentgateway.service.client.TaxiMasterApiClient
 import ru.catcab.taximaster.paymentgateway.service.client.TaxiMasterApiClientAdapter
 import ru.catcab.taximaster.paymentgateway.service.flyway.FlywayMigrationService

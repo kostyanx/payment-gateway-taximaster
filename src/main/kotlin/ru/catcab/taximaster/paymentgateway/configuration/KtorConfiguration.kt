@@ -57,7 +57,7 @@ fun Application.module() {
             call.respond(response)
             val method = call.request.httpMethod
             val params = if (method == HttpMethod.Get) call.parameters else call.receiveParameters()
-            GlobalScope.launch { requestLogOperation.activate(method, call.request.path(), params, 200, response) }
+            GlobalScope.launch(MDCContext()) { requestLogOperation.activate(method, call.request.path(), params, 200, response) }
         }
         exception<Throwable> { e ->
             call.application.environment.log.error("Unexpected error:", e)
@@ -65,7 +65,7 @@ fun Application.module() {
             call.respond(response)
             val method = call.request.httpMethod
             val params = if (method == HttpMethod.Get) call.parameters else call.receiveParameters()
-            GlobalScope.launch { requestLogOperation.activate(method, call.request.path(), params, 200, response) }
+            GlobalScope.launch(MDCContext()) { requestLogOperation.activate(method, call.request.path(), params, 200, response) }
         }
     }
 

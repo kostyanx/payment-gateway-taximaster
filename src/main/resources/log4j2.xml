@@ -1,17 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Configuration>
+  <Properties>
+     <Property name="consoleAppender">${sys:log4j.console.appender:-stdout}</Property>
+  </Properties>
+
   <Appenders>
+
     <Console name="stdout" target="SYSTEM_OUT">
       <PatternLayout pattern="%d %p %c %X %m%n"/>
     </Console>
-      <RollingFile name="application" fileName="log/application.log"
-                   filePattern="log/application-%i.log.gz">
-          <JsonTemplateLayout eventTemplateUri="classpath:LogstashJsonEventLayoutV1.json"/>
-          <Policies>
-              <SizeBasedTriggeringPolicy size="100 MB"/>
-          </Policies>
-          <DefaultRolloverStrategy max="5" compressionLevel="9" />
-      </RollingFile>
+
+    <Console name="stdout_win" target="SYSTEM_OUT">
+      <PatternLayout pattern="%d %p %c %X %m%n" charset="cp866"/>
+    </Console>
+
+    <RollingFile name="application" fileName="log/application.log"
+                 filePattern="log/application-%i.log.gz">
+        <JsonTemplateLayout eventTemplateUri="classpath:LogstashJsonEventLayoutV1.json"/>
+        <Policies>
+            <SizeBasedTriggeringPolicy size="100 MB"/>
+        </Policies>
+        <DefaultRolloverStrategy max="5" compressionLevel="9" />
+    </RollingFile>
+
     <RollingFile name="error" fileName="log/error.log"
                  filePattern="log/error-%i.log.gz">
         <PatternLayout pattern="%d %p %c %X %m%n"/>
@@ -20,6 +31,7 @@
         </Policies>
         <DefaultRolloverStrategy max="5" compressionLevel="9" />
     </RollingFile>
+
     <RollingFile name="info" fileName="log/info.log"
                  filePattern="log/info-%i.log.gz">
         <PatternLayout pattern="%d %p %c %X %m%n"/>
@@ -28,6 +40,7 @@
         </Policies>
         <DefaultRolloverStrategy max="5" compressionLevel="9" />
     </RollingFile>
+
     <RollingFile name="debug" fileName="log/debug.log"
                  filePattern="log/debug-%i.log.gz">
         <PatternLayout pattern="%d %p %c %X %m%n"/>
@@ -36,6 +49,7 @@
         </Policies>
         <DefaultRolloverStrategy max="5" compressionLevel="9" />
     </RollingFile>
+
     <RollingFile name="audit" fileName="log/audit.log"
                  filePattern="log/audit-%d{dd-MMM}.log">
         <PatternLayout pattern="%d %m%n"/>
@@ -44,13 +58,15 @@
         </Policies>
         <DefaultRolloverStrategy max="31"/>
     </RollingFile>
+
   </Appenders>
+
   <Loggers>
     <Logger name="ru.catcab.taximaster.paymentgateway.audit" level="info">
         <AppenderRef ref="audit" level="info" />
     </Logger>
     <Root level="debug">
-      <AppenderRef ref="stdout" level="debug" />
+      <AppenderRef ref="${consoleAppender}" level="debug" />
       <AppenderRef ref="error" level="warn" />
       <AppenderRef ref="info" level="info" />
       <AppenderRef ref="debug" level="debug" />

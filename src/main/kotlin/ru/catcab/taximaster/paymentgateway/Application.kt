@@ -19,6 +19,7 @@ import ru.catcab.taximaster.paymentgateway.logic.DriverSynchronizationOperation
 import ru.catcab.taximaster.paymentgateway.logic.FlywayMigrationOperation
 import ru.catcab.taximaster.paymentgateway.logic.PaymentsPollingOperation
 import ru.catcab.taximaster.paymentgateway.logic.RemoveOldDataOperation
+import java.nio.charset.Charset
 import kotlin.concurrent.thread
 import kotlin.time.ExperimentalTime
 import kotlin.time.seconds
@@ -73,6 +74,8 @@ class Application : KoinComponent {
         @ExperimentalTime
         @JvmStatic
         fun main(args: Array<String>) {
+            LOG.info("default charset: {}", Charset.defaultCharset())
+
             val currentUncaughtExceptionHandler = Thread.getDefaultUncaughtExceptionHandler() ?: null
             Thread.setDefaultUncaughtExceptionHandler { thread, ex ->
                 LOG.error("uncaught exception on thread $thread:", ex)
