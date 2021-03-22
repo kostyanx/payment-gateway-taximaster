@@ -7,6 +7,7 @@ data class ApplicationConfig (
     val taximaster: TaxiMasterGroup,
     val retry: RetrySpec,
     val sberbank: Sberbank,
+    val ccb: Ccb,
     val synchronization: Synchronization,
     val sourceTypeMap: Map<SourceType, String>,
     val logging: Logging

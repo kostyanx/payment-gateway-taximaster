@@ -38,6 +38,10 @@ sberbank:
     - 'APAY'
   pay_ch_default: 'SBERBANK_CASHLESS'
 
+ccb:
+  allowed_serv_values:
+    - '2'
+
 synchronization:
   interval_sec: 60
   drivers: true

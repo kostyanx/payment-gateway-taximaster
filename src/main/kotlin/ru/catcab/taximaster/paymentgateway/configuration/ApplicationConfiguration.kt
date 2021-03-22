@@ -8,6 +8,8 @@ import org.h2.jdbcx.JdbcConnectionPool
 import org.jetbrains.exposed.sql.Database
 import org.koin.dsl.module
 import ru.catcab.taximaster.paymentgateway.configuration.values.ApplicationConfig
+import ru.catcab.taximaster.paymentgateway.controller.CcbController
+import ru.catcab.taximaster.paymentgateway.controller.SberbankController
 import ru.catcab.taximaster.paymentgateway.logic.CarDriverSynchronizationOperation
 import ru.catcab.taximaster.paymentgateway.logic.DriverSynchronizationOperation
 import ru.catcab.taximaster.paymentgateway.logic.FlywayMigrationOperation
@@ -88,6 +90,10 @@ class ApplicationConfiguration {
             single { RequestLogOperation(get(), get()) }
 
             single { RemoveOldDataOperation(get(), get(), get(), get()) }
+
+            single { SberbankController(get(), get(), get()) }
+
+            single { CcbController(get(), get(), get()) }
         }
     }
 }

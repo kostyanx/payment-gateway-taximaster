@@ -51,7 +51,7 @@
     </RollingFile>
 
     <RollingFile name="audit" fileName="log/audit.log"
-                 filePattern="log/audit-%d{dd-MMM}.log">
+                 filePattern="log/audit-%d{yyyy-MM-dd}.log">
         <PatternLayout pattern="%d %m%n"/>
         <Policies>
             <TimeBasedTriggeringPolicy interval="1"/>

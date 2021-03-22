@@ -17,14 +17,11 @@ import kotlinx.coroutines.slf4j.MDCContext
 import kotlinx.coroutines.withContext
 import org.koin.ktor.ext.inject
 import org.slf4j.MDC
-import ru.catcab.taximaster.paymentgateway.configuration.values.ApplicationConfig
+import ru.catcab.taximaster.paymentgateway.controller.CcbController
+import ru.catcab.taximaster.paymentgateway.controller.SberbankController
 import ru.catcab.taximaster.paymentgateway.dto.sberbank.ResponseError
 import ru.catcab.taximaster.paymentgateway.exception.SberbankException
 import ru.catcab.taximaster.paymentgateway.logic.RequestLogOperation
-import ru.catcab.taximaster.paymentgateway.logic.SberbankCheckOperation
-import ru.catcab.taximaster.paymentgateway.logic.SberbankCheckOperation.Companion.ACCOUNT_NOT_FOUND
-import ru.catcab.taximaster.paymentgateway.logic.SberbankPaymentOperation
-import ru.catcab.taximaster.paymentgateway.util.common.Helpers.containsAddress
 import ru.catcab.taximaster.paymentgateway.util.common.Helpers.removeLeadingZeros
 import ru.catcab.taximaster.paymentgateway.util.context.LogIdGenerator
 import ru.catcab.taximaster.paymentgateway.util.context.MDCKey.RECEIVER
@@ -37,12 +34,10 @@ val xmlMapper = XmlMapper().apply {
 
 fun Application.module() {
 
-    val sberbankCheckOperation by inject<SberbankCheckOperation>()
-    val sberbankPaymentOperation by inject<SberbankPaymentOperation>()
     val requestLogOperation by inject<RequestLogOperation>()
+    val sberbankController by inject<SberbankController>()
+    val ccbController by inject<CcbController>()
     val logIdGenerator by inject<LogIdGenerator>()
-    val config by inject<ApplicationConfig>()
-
 
     install(DoubleReceive) { receiveEntireContent = true }
 
@@ -79,62 +74,46 @@ fun Application.module() {
             call.respond(ResponseError(-1, "not implemented"))
         }
         get("/jbilling/pay/sberbank2") {
-            val params = call.parameters
-            processSberbankPayment(call.request.httpMethod, params, config, sberbankCheckOperation, sberbankPaymentOperation, requestLogOperation)
+            processSberbankGet(sberbankController, requestLogOperation)
         }
         get("/jbilling/pay/sberbank2/") {
-            val params = call.parameters
-            println(params.formUrlEncode())
-            processSberbankPayment(call.request.httpMethod, params, config, sberbankCheckOperation, sberbankPaymentOperation, requestLogOperation)
+            processSberbankGet(sberbankController, requestLogOperation)
         }
         post("/jbilling/pay/sberbank2") {
-            val params = call.receiveParameters()
-            val mdcMap = params["ACCOUNT"]?.let { mapOf(RECEIVER.value to it) } ?: mapOf()
-            withContext(MDCContext(MDC.getCopyOfContextMap() + mdcMap)) {
-                processSberbankPayment(call.request.httpMethod, params, config, sberbankCheckOperation, sberbankPaymentOperation, requestLogOperation)
-            }
+            processSberbankPost(sberbankController, requestLogOperation)
         }
         post("/jbilling/pay/sberbank2/") {
+            processSberbankPost(sberbankController, requestLogOperation)
+        }
+        post("/jbilling/pay/sberbank") {
             val params = call.receiveParameters()
-            val mdcMap = params["ACCOUNT"]?.let { mapOf(RECEIVER.value to it) } ?: mapOf()
-            withContext(MDCContext(MDC.getCopyOfContextMap() + mdcMap)) {
-                processSberbankPayment(call.request.httpMethod, params, config, sberbankCheckOperation, sberbankPaymentOperation, requestLogOperation)
-            }
-
+        }
+        post("/jbilling/pay/sberbank/") {
+            val params = call.receiveParameters()
         }
     }
 }
 
-private suspend fun PipelineContext<Unit, ApplicationCall>.processSberbankPayment(
-    method: HttpMethod,
-    params: Parameters,
-    config: ApplicationConfig,
-    sberbankCheckOperation: SberbankCheckOperation,
-    sberbankPaymentOperation: SberbankPaymentOperation,
+private suspend fun PipelineContext<Unit, ApplicationCall>.processSberbankGet(
+    sberbankController: SberbankController,
     requestLogOperation: RequestLogOperation
 ) {
-    val remoteHost = call.request.origin.remoteHost
-    val allowed = config.sberbank.security.allowedHosts.contains(remoteHost) || config.sberbank.security.allowedSubnets.any { it.containsAddress(remoteHost) }
-    if (!allowed) throw SberbankException(2, "Запрос выполнен с неразрешенного адреса")
-
-    val action = requireNotNull(params["ACTION"], { "ACTION parameter not defined" })
-    val account = requireNotNull(params["ACCOUNT"], { "ACCOUNT parameter not defined" })
-    val response: Any = when (action.toLowerCase()) {
-        "check" -> {
-            if (params["SERV"].let { it != null && !config.sberbank.allowedServValues.contains(it) }) throw SberbankException(3, ACCOUNT_NOT_FOUND)
-            sberbankCheckOperation.activate(account)
-        }
-        "payment" -> {
-            val amount = requireNotNull(params["AMOUNT"], { "AMOUNT parameter not defined" })
-            val payId = requireNotNull(params["PAY_ID"], { "PAY_ID parameter not defined" })
-            val payDate = requireNotNull(params["PAY_DATE"], { "PAY_DATE parameter not defined" })
-            val payCh = params["PAY_CH"]
-            sberbankPaymentOperation.activate(account, amount, payId, payDate, payCh)
-        }
-        else -> {
-            ResponseError(2, "Неизвестный тип запроса")
-        }
-    }
+    val params = call.parameters
+    val response = sberbankController.activate(this, params)
     call.respond(response)
-    GlobalScope.launch(MDCContext()) { requestLogOperation.activate(method, call.request.path(), params, 200, response) }
+    GlobalScope.launch(MDCContext()) { requestLogOperation.activate(call.request.httpMethod, call.request.path(), params, 200, response) }
+}
+
+private suspend fun PipelineContext<Unit, ApplicationCall>.processSberbankPost(
+    sberbankController: SberbankController,
+    requestLogOperation: RequestLogOperation
+) {
+    val params = call.receiveParameters()
+    val mdcMap = params["ACCOUNT"]?.let { mapOf(RECEIVER.value to it) } ?: mapOf()
+    val ctx = this
+    withContext(MDCContext(MDC.getCopyOfContextMap() + mdcMap)) {
+        val response = sberbankController.activate(ctx, params)
+        call.respond(response)
+        GlobalScope.launch(MDCContext()) { requestLogOperation.activate(call.request.httpMethod, call.request.path(), params, 200, response) }
+    }
 }
