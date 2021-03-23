@@ -1,5 +1,6 @@
 package ru.catcab.taximaster.paymentgateway.configuration
 
+import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.dataformat.xml.XmlMapper
 import com.fasterxml.jackson.dataformat.xml.ser.ToXmlGenerator
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
@@ -34,6 +35,7 @@ val xmlMapper = XmlMapper().apply {
     configure(ToXmlGenerator.Feature.WRITE_XML_DECLARATION, true)
     registerModule(KotlinModule())
     registerModule(JavaTimeModule())
+    disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
 }
 
 fun Application.module() {

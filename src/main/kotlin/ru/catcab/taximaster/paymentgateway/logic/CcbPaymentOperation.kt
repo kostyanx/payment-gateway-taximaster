@@ -46,8 +46,8 @@ class CcbPaymentOperation(
             return CcbResponseError(30, "Был другой платеж с указанным номером")
         }
 
-        val newPayment = paymentInOperation.activate(CCB, receiver, amount, payId, payDate, MDCKey.getValue(REQUEST_ID))
+        val newPayment = paymentInOperation.activate(CCB, receiver, amount / 100.toBigDecimal(), payId, payDate, MDCKey.getValue(REQUEST_ID))
         val regTime = newPayment.inserted.truncatedTo(SECONDS)
-        return CcbResponsePayment(0, "OK", account, newPayment.payId, regTime)
+        return CcbResponsePayment(0, "OK", account, newPayment.id.value.toString(), regTime)
     }
 }
