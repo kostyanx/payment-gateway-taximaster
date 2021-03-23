@@ -38,6 +38,7 @@ sberbank:
   pay_ch_default: 'SBERBANK_CASHLESS'
 
 ccb:
+  check_sign: false
   secret: 'ccb_secret'
   allowed_subnets:
     - '127.0.0.0/8'
