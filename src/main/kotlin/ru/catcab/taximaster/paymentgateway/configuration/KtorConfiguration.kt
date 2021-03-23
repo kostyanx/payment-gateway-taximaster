@@ -2,6 +2,7 @@ package ru.catcab.taximaster.paymentgateway.configuration
 
 import com.fasterxml.jackson.dataformat.xml.XmlMapper
 import com.fasterxml.jackson.dataformat.xml.ser.ToXmlGenerator
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import io.ktor.application.*
 import io.ktor.features.*
@@ -32,6 +33,7 @@ import ru.catcab.taximaster.paymentgateway.util.context.MDCKey.REQUEST_ID
 val xmlMapper = XmlMapper().apply {
     configure(ToXmlGenerator.Feature.WRITE_XML_DECLARATION, true)
     registerModule(KotlinModule())
+    registerModule(JavaTimeModule())
 }
 
 fun Application.module() {

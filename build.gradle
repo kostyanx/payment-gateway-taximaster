@@ -49,8 +49,9 @@ dependencies {
     implementation "io.ktor:ktor-server-core:$ktor_version"
     implementation "io.ktor:ktor-server-netty:$ktor_version"
     implementation "io.ktor:ktor-serialization:$ktor_version"
-    //
+    // xml serialization
     implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.12.0'
+    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.12.0'
     // exposed - kotlin database framework
     implementation "org.jetbrains.exposed:exposed-core:$exposed_version"
     implementation "org.jetbrains.exposed:exposed-dao:$exposed_version"

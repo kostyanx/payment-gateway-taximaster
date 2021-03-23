@@ -21,7 +21,7 @@ class CcbController(
     }
 
     suspend fun activate(pipelineContext: PipelineContext<Unit, ApplicationCall>, request: CcbRequest): Any {
-        return pipelineContext.apply {
+        pipelineContext.apply {
             val remoteHost = call.request.origin.remoteHost
             val allowed =
                 config.ccb.allowedHosts.contains(remoteHost) || config.ccb.allowedSubnets.any { it.containsAddress(remoteHost) }
@@ -31,7 +31,7 @@ class CcbController(
             val account = request.params.account ?: return CcbResponseError(11, NOT_ALL_REQUIRED_PARAMETERS_IS_SET)
             val servCode = request.params.servCode
 
-            when (action) {
+            return when (action) {
                 CcbRequest.ACTION_CHECK -> {
                     if (servCode.let { it != null && !config.ccb.allowedServValues.contains(it) })
                         return CcbResponseError(3, SberbankCheckOperation.ACCOUNT_NOT_FOUND)
