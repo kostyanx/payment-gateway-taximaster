@@ -11,6 +11,8 @@ import ru.catcab.taximaster.paymentgateway.configuration.values.ApplicationConfi
 import ru.catcab.taximaster.paymentgateway.controller.CcbController
 import ru.catcab.taximaster.paymentgateway.controller.SberbankController
 import ru.catcab.taximaster.paymentgateway.logic.CarDriverSynchronizationOperation
+import ru.catcab.taximaster.paymentgateway.logic.CcbCheckOperation
+import ru.catcab.taximaster.paymentgateway.logic.CcbPaymentOperation
 import ru.catcab.taximaster.paymentgateway.logic.DriverSynchronizationOperation
 import ru.catcab.taximaster.paymentgateway.logic.FlywayMigrationOperation
 import ru.catcab.taximaster.paymentgateway.logic.PaymentInOperation
@@ -94,6 +96,10 @@ class ApplicationConfiguration {
             single { SberbankController(get(), get(), get()) }
 
             single { CcbController(get(), get(), get()) }
+
+            single { CcbCheckOperation(get(), get()) }
+
+            single { CcbPaymentOperation(get(), get(), get()) }
         }
     }
 }

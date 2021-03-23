@@ -1,7 +1,7 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="Application" type="JetRunConfigurationType" nameIsGenerated="true">
     <module name="payment-gateway-taximaster.main" />
-    <option name="VM_PARAMETERS" value="" />
+    <option name="VM_PARAMETERS" value="-Dfile.encoding=UTF-8" />
     <option name="PROGRAM_PARAMETERS" value="-config=application.conf" />
     <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
     <option name="ALTERNATIVE_JRE_PATH" />

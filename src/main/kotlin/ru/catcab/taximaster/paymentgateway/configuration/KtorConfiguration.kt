@@ -19,6 +19,8 @@ import org.koin.ktor.ext.inject
 import org.slf4j.MDC
 import ru.catcab.taximaster.paymentgateway.controller.CcbController
 import ru.catcab.taximaster.paymentgateway.controller.SberbankController
+import ru.catcab.taximaster.paymentgateway.dto.ccb.CcbRequest
+import ru.catcab.taximaster.paymentgateway.dto.ccb.CcbResponseError
 import ru.catcab.taximaster.paymentgateway.dto.sberbank.ResponseError
 import ru.catcab.taximaster.paymentgateway.exception.SberbankException
 import ru.catcab.taximaster.paymentgateway.logic.RequestLogOperation
@@ -56,11 +58,16 @@ fun Application.module() {
         }
         exception<Throwable> { e ->
             call.application.environment.log.error("Unexpected error:", e)
-            val response = ResponseError(-1, e.toString())
+            val path = call.request.path()
+            val response: Any = when {
+                path.trimEnd('/').endsWith("sberbank2") -> ResponseError(-1, e.toString())
+                path.trimEnd('/').endsWith("sbrebank") -> CcbResponseError(90, "Временная техническая ошибка")
+                else -> ResponseError(-1, e.toString())
+            }
             call.respond(response)
             val method = call.request.httpMethod
             val params = if (method == HttpMethod.Get) call.parameters else call.receiveParameters()
-            GlobalScope.launch(MDCContext()) { requestLogOperation.activate(method, call.request.path(), params, 200, response) }
+            GlobalScope.launch(MDCContext()) { requestLogOperation.activate(method, path, params, 200, response) }
         }
     }
 
@@ -86,11 +93,29 @@ fun Application.module() {
             processSberbankPost(sberbankController, requestLogOperation)
         }
         post("/jbilling/pay/sberbank") {
-            val params = call.receiveParameters()
+            processCcb(ccbController, requestLogOperation)
         }
         post("/jbilling/pay/sberbank/") {
-            val params = call.receiveParameters()
+            processCcb(ccbController, requestLogOperation)
         }
+    }
+}
+
+private suspend fun PipelineContext<Unit, ApplicationCall>.processCcb(
+    ccbController: CcbController,
+    requestLogOperation: RequestLogOperation
+) {
+    val params = call.receiveParameters()
+    val xmlString = params["params"]
+    @Suppress("BlockingMethodInNonBlockingContext")
+    val ccbRequest = xmlMapper.readValue(xmlString, CcbRequest::class.java)!!
+    val account = ccbRequest.params.account
+    val mdcMap = if (account != null) mapOf(RECEIVER.value to account) else mapOf()
+    val ctx = this
+    withContext(MDCContext(MDC.getCopyOfContextMap() + mdcMap)) {
+        val response = ccbController.activate(ctx, ccbRequest)
+        call.respond(response)
+        GlobalScope.launch(MDCContext()) { requestLogOperation.activate(call.request.httpMethod, call.request.path(), params, 200, response) }
     }
 }
 

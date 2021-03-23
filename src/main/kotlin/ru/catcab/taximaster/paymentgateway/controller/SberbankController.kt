@@ -18,7 +18,7 @@ class SberbankController(
     suspend fun activate(pipelineContext: PipelineContext<Unit, ApplicationCall>, params: Parameters): Any {
         pipelineContext.apply {
             val remoteHost = call.request.origin.remoteHost
-            val allowed = config.sberbank.security.allowedHosts.contains(remoteHost) || config.sberbank.security.allowedSubnets.any { it.containsAddress(remoteHost) }
+            val allowed = config.sberbank.allowedHosts.contains(remoteHost) || config.sberbank.allowedSubnets.any { it.containsAddress(remoteHost) }
             if (!allowed) return ResponseError(2, "Запрос выполнен с неразрешенного адреса")
 
             val action = requireNotNull(params["ACTION"], { "ACTION parameter not defined" })

@@ -5,8 +5,8 @@ import kotlinx.coroutines.withContext
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.transactions.transaction
 import ru.catcab.taximaster.paymentgateway.database.entity.Driver
+import ru.catcab.taximaster.paymentgateway.dto.ccb.CcbResponseBalance
 import ru.catcab.taximaster.paymentgateway.dto.ccb.CcbResponseError
-import ru.catcab.taximaster.paymentgateway.dto.sberbank.CheckResponseOk
 import ru.catcab.taximaster.paymentgateway.util.context.LogIdGenerator
 import ru.catcab.taximaster.paymentgateway.util.context.MDCKey.OPERATION_ID
 import ru.catcab.taximaster.paymentgateway.util.context.MDCKey.OPERATION_NAME
@@ -41,7 +41,7 @@ class CcbCheckOperation(
         return withContext(Dispatchers.IO) {
             transaction(database) {
                 val driver = Driver.findById(driverId) ?: return@transaction CcbResponseError(20, ACCOUNT_NOT_FOUND)
-                CheckResponseOk(0, "OK", driver.fio, "", driver.balance)
+                CcbResponseBalance(0, "OK", account, driver.fio, driver.balance)
             }
         }
     }

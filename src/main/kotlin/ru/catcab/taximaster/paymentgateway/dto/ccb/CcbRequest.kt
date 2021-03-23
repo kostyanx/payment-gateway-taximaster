@@ -3,6 +3,8 @@ package ru.catcab.taximaster.paymentgateway.dto.ccb
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.annotation.JsonRootName
 import java.math.BigDecimal
+import java.time.LocalDate
+import java.time.LocalDateTime
 
 @JsonRootName("request")
 data class CcbRequest(
@@ -18,15 +20,17 @@ data class CcbRequest(
 
     data class Params (
         @JsonProperty("act")
-        val act: Int,
+        val act: Int?,
         @JsonProperty("account")
-        val account: String,
+        val account: String?,
+        @JsonProperty("agent_date")
+        val agentDate: LocalDateTime?,
         @JsonProperty("pay_amount")
         val payAmount: BigDecimal?,
         @JsonProperty("pay_id")
         val payId: String?,
         @JsonProperty("pay_date")
-        val payDate: String?,
+        val payDate: LocalDateTime?,
         @JsonProperty("pay_type")
         val payType: Int?,
         @JsonProperty("serv_code")

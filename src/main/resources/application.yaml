@@ -14,15 +14,14 @@ retry:
   strategy: '{"intervals": [{"interval": 300, "quantity": 2}, {"interval": 600, "quantity": 2}, {"interval": 1200, "quantity": 2} ]}'
 
 sberbank:
-  security:
-    allowed_subnets:
-      - '194.186.207.0/24'
-      - '194.54.14.0/24'
-      - '192.168.0.0/16'
-      - '127.0.0.0/8'
-    allowed_hosts:
-      - 'localhost'
-      - 'ip6-localhost'
+  allowed_subnets:
+    - '194.186.207.0/24'
+    - '194.54.14.0/24'
+    - '192.168.0.0/16'
+    - '127.0.0.0/8'
+  allowed_hosts:
+    - 'localhost'
+    - 'ip6-localhost'
   allowed_serv_values:
     - '2'
   pay_ch_cash:
@@ -39,8 +38,26 @@ sberbank:
   pay_ch_default: 'SBERBANK_CASHLESS'
 
 ccb:
+  secret: 'ccb_secret'
+  allowed_subnets:
+    - '127.0.0.0/8'
+    - '192.168.0.0/16'
+    - '10.0.0.0/8'
+    - '172.16.0.0/12'
+    - '94.138.149.210'
+    - '94.138.149.208'
+    - '94.138.149.36'
+    - '89.250.213.20'
+    - '89.250.213.22'
+    - '89.250.209.99'
+    - '94.138.149.32'
+  allowed_hosts:
+    - 'localhost'
+    - 'ip6-localhost'
   allowed_serv_values:
     - '2'
+    - '3'
+    - '4'
 
 synchronization:
   interval_sec: 60
