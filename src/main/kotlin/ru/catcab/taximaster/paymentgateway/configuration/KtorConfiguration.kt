@@ -108,14 +108,14 @@ private suspend fun PipelineContext<Unit, ApplicationCall>.processCcb(
     requestLogOperation: RequestLogOperation
 ) {
     val params = call.receiveParameters()
-    val xmlString = params["params"]
+    val xmlString = params["params"]!!
     @Suppress("BlockingMethodInNonBlockingContext")
     val ccbRequest = xmlMapper.readValue(xmlString, CcbRequest::class.java)!!
     val account = ccbRequest.params.account
     val mdcMap = if (account != null) mapOf(RECEIVER.value to account) else mapOf()
     val ctx = this
     withContext(MDCContext(MDC.getCopyOfContextMap() + mdcMap)) {
-        val response = ccbController.activate(ctx, ccbRequest)
+        val response = ccbController.activate(ctx, xmlString, ccbRequest)
         call.respond(response)
         GlobalScope.launch(MDCContext()) { requestLogOperation.activate(call.request.httpMethod, call.request.path(), params, 200, response) }
     }

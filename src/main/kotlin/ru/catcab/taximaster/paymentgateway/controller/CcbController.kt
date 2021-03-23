@@ -9,6 +9,7 @@ import ru.catcab.taximaster.paymentgateway.dto.ccb.CcbResponseError
 import ru.catcab.taximaster.paymentgateway.logic.CcbCheckOperation
 import ru.catcab.taximaster.paymentgateway.logic.CcbPaymentOperation
 import ru.catcab.taximaster.paymentgateway.logic.SberbankCheckOperation
+import ru.catcab.taximaster.paymentgateway.util.common.Helpers.ccbSignatureIsValid
 import ru.catcab.taximaster.paymentgateway.util.common.Helpers.containsAddress
 
 class CcbController(
@@ -18,14 +19,17 @@ class CcbController(
 ) {
     companion object {
         @JvmStatic private val NOT_ALL_REQUIRED_PARAMETERS_IS_SET = "Указаны не все необходимые параметры"
+        @JvmStatic private val INVALID_SIGNATURE = "Неверная цифровая подпись"
     }
 
-    suspend fun activate(pipelineContext: PipelineContext<Unit, ApplicationCall>, request: CcbRequest): Any {
+    suspend fun activate(pipelineContext: PipelineContext<Unit, ApplicationCall>, xmlString: String, request: CcbRequest): Any {
         pipelineContext.apply {
             val remoteHost = call.request.origin.remoteHost
-            val allowed =
-                config.ccb.allowedHosts.contains(remoteHost) || config.ccb.allowedSubnets.any { it.containsAddress(remoteHost) }
+            val allowed = config.ccb.allowedHosts.contains(remoteHost) || config.ccb.allowedSubnets.any { it.containsAddress(remoteHost) }
             if (!allowed) return CcbResponseError(10, "Запрос выполнен с неразрешенного адреса")
+
+            if (config.ccb.checkSign && !ccbSignatureIsValid(xmlString, "params", "sign", config.ccb.secret))
+                return CcbResponseError(13, INVALID_SIGNATURE)
 
             val action = request.params.act ?: return CcbResponseError(11, NOT_ALL_REQUIRED_PARAMETERS_IS_SET)
             val account = request.params.account ?: return CcbResponseError(11, NOT_ALL_REQUIRED_PARAMETERS_IS_SET)
