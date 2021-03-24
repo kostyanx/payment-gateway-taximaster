@@ -94,7 +94,6 @@ distributions {
 
         contents {
             from 'application.conf'
-            from 'src/dist'
             from 'src/main/resources'
         }
     }
